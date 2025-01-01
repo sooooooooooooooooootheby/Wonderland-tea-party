@@ -1,0 +1,35 @@
+* {
+    margin: 0;
+    padding: 0;
+    color: #FFFFFF;
+}
+
+.icons {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    transition: 0.2s;
+    cursor: pointer;
+    .icon {
+        font-size: 1.4rem;
+    }
+}
+.icons:hover {
+    background-color: #2f2f2f;
+}
+
+.devui-textarea {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.devui-textarea::placeholder {
+    padding-left: 4px;
+}
+
+pre {
+    padding: 24px !important;
+    border-radius: 12px;
+}
