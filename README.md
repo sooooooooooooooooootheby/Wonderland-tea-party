@@ -7,12 +7,7 @@
 TODO:
 
 - 项目初始化
-<<<<<<< HEAD
 - ~~文本流式传输~~
-=======
-- 游客模式
-- 文本流式传输
->>>>>>> ad25e5bdbe19e242e3ee7edceec3f2f7ed58382a
 - 移动端适配
 - 支持github GPT4o
 
@@ -22,6 +17,36 @@ TODO:
 如果你也想要使用, 那么 `Wonderland-tea-party-ai` 是前端页面, `core` 是后端.
 
 (在你部署过程中大概率会遇到很多问题, 请和我联系).
+
+# 使用方法
+
+``` bash
+git clone https://github.com/sooooooooooooooooootheby/Wonderland-tea-party
+
+cd Wonderland-tea-party
+```
+
+后端:
+
+``` bash
+cd core
+
+pnpm i
+
+node server.js # 推荐使用nodemon
+```
+
+前端:
+
+``` bash
+cd Wonderland-tea-party-ai
+
+pnpm i
+
+pnpm run dev
+```
+
+# 配置
 
 ## 后端
 
