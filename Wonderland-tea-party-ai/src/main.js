@@ -3,8 +3,7 @@ import "vue-devui/style.css";
 import "@devui-design/icons/icomoon/devui-icon.css";
 import "devui-theme/styles-var/devui-var.scss";
 import "element-plus/dist/index.css";
-import '@/assets/prism-duotone-sea.css';
-// import '@/assets/prism-duotone-space.css';
+import 'highlight.js/styles/atom-one-dark.css';
 
 import { createApp } from "vue";
 import { createPinia } from "pinia";

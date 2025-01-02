@@ -2,7 +2,8 @@ import axios from "axios";
 
 // 创建 Axios 实例
 const Axios = axios.create({
-    baseURL: "https://api.sooooooooooooooooootheby.top/ai/",
+    baseURL: "http://127.0.0.1:3000",
+    // baseURL: "https://api.sooooooooooooooooootheby.top/ai/",
 });
 
 // 请求拦截器

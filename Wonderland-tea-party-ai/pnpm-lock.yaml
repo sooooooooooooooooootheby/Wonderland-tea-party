@@ -29,12 +29,15 @@ importers:
       element-plus:
         specifier: ^2.9.1
         version: 2.9.1(vue@3.5.13)
-      markdown-it:
-        specifier: ^14.1.0
-        version: 14.1.0
-      markdown-it-prism:
-        specifier: ^2.3.0
-        version: 2.3.0
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
+      marked:
+        specifier: ^15.0.4
+        version: 15.0.4
+      marked-highlight:
+        specifier: ^2.2.1
+        version: 2.2.1(marked@15.0.4)
       pinia:
         specifier: ^2.3.0
         version: 2.3.0(vue@3.5.13)
@@ -1392,9 +1395,6 @@ packages:
   linkify-it@3.0.3:
     resolution: {integrity: sha512-ynTsyrFSdE5oZ/O9GEf00kPngmOfVwazR5GKDq6EYfhlpFug3J2zybX56a2PRRpc9P+FuSoGNAwjlbDs9jJBPQ==}
 
-  linkify-it@5.0.0:
-    resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
-
   local-pkg@0.5.1:
     resolution: {integrity: sha512-9rrA30MRRP3gBD3HTGnC6cDFpaE1kVDWxWgqWJUN0RvDNAo+Nz/9GxB+nHOH0ifbVFy0hSA1V6vFDvnx54lTEQ==}
     engines: {node: '>=14'}
@@ -1424,23 +1424,22 @@ packages:
   markdown-it-plantuml@1.4.1:
     resolution: {integrity: sha512-13KgnZaGYTHBp4iUmGofzZSBz+Zj6cyqfR0SXUIc9wgWTto5Xhn7NjaXYxY0z7uBeTUMlc9LMQq5uP4OM5xCHg==}
 
-  markdown-it-prism@2.3.0:
-    resolution: {integrity: sha512-ePtHY80gZyeje4bn3R3SL0jpd1C9HFaYffJW2Ma0YD+tspqa2v9TuVwUyFwboFu4jnFNcO8oPQROgbcYJbmBvw==}
-    engines: {node: '>=6.0.0'}
-
   markdown-it@12.2.0:
     resolution: {integrity: sha512-Wjws+uCrVQRqOoJvze4HCqkKl1AsSh95iFAeQDwnyfxM09divCBSXlDR1uTvyUP3Grzpn4Ru8GeCxYPM8vkCQg==}
     hasBin: true
 
-  markdown-it@14.1.0:
-    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+  marked-highlight@2.2.1:
+    resolution: {integrity: sha512-SiCIeEiQbs9TxGwle9/OwbOejHCZsohQRaNTY2u8euEXYt2rYUFoiImUirThU3Gd/o6Q1gHGtH9qloHlbJpNIA==}
+    peerDependencies:
+      marked: '>=4 <16'
+
+  marked@15.0.4:
+    resolution: {integrity: sha512-TCHvDqmb3ZJ4PWG7VEGVgtefA5/euFmsIhxtD0XsBxI39gUSKL81mIRFdt0AiNQozUahd4ke98ZdirExd/vSEw==}
+    engines: {node: '>= 18'}
     hasBin: true
 
   mdurl@1.0.1:
     resolution: {integrity: sha512-/sKlQJCBYVY9Ers9hqzKou4H6V5UWc/M59TH2dvkt+84itfnq7uFOMLpOiOS4ujvHP4etln18fmIxA5R5fll0g==}
-
-  mdurl@2.0.0:
-    resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
 
   memoize-one@6.0.0:
     resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==}
@@ -1575,16 +1574,8 @@ packages:
     resolution: {integrity: sha512-4yf0QO/sllf/1zbZWYnvWw3NxCQwLXKzIj0G849LSufP15BXKM0rbD2Z3wVnkMfjdn/CB0Dpp444gYAACdsplg==}
     engines: {node: '>=18'}
 
-  prismjs@1.29.0:
-    resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
-    engines: {node: '>=6'}
-
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
-
-  punycode.js@2.3.1:
-    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
-    engines: {node: '>=6'}
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -1703,9 +1694,6 @@ packages:
 
   uc.micro@1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
-
-  uc.micro@2.1.0:
-    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
   ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
@@ -3232,10 +3220,6 @@ snapshots:
     dependencies:
       uc.micro: 1.0.6
 
-  linkify-it@5.0.0:
-    dependencies:
-      uc.micro: 2.1.0
-
   local-pkg@0.5.1:
     dependencies:
       mlly: 1.7.3
@@ -3263,10 +3247,6 @@ snapshots:
 
   markdown-it-plantuml@1.4.1: {}
 
-  markdown-it-prism@2.3.0:
-    dependencies:
-      prismjs: 1.29.0
-
   markdown-it@12.2.0:
     dependencies:
       argparse: 2.0.1
@@ -3275,18 +3255,13 @@ snapshots:
       mdurl: 1.0.1
       uc.micro: 1.0.6
 
-  markdown-it@14.1.0:
+  marked-highlight@2.2.1(marked@15.0.4):
     dependencies:
-      argparse: 2.0.1
-      entities: 4.5.0
-      linkify-it: 5.0.0
-      mdurl: 2.0.0
-      punycode.js: 2.3.1
-      uc.micro: 2.1.0
+      marked: 15.0.4
+
+  marked@15.0.4: {}
 
   mdurl@1.0.1: {}
-
-  mdurl@2.0.0: {}
 
   memoize-one@6.0.0: {}
 
@@ -3407,11 +3382,7 @@ snapshots:
     dependencies:
       parse-ms: 4.0.0
 
-  prismjs@1.29.0: {}
-
   proxy-from-env@1.1.0: {}
-
-  punycode.js@2.3.1: {}
 
   queue-microtask@1.2.3: {}
 
@@ -3525,8 +3496,6 @@ snapshots:
   tslib@2.8.1: {}
 
   uc.micro@1.0.6: {}
-
-  uc.micro@2.1.0: {}
 
   ufo@1.5.4: {}
 

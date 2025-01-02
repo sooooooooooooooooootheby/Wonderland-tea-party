@@ -4,6 +4,11 @@
     color: #FFFFFF;
 }
 
+@font-face {
+    font-family: CartographCF;
+    src: url("@/assets/CartographCF.otf");
+}
+
 .icons {
     padding: 8px;
     display: flex;
@@ -29,7 +34,14 @@
     padding-left: 4px;
 }
 
-pre {
-    padding: 24px !important;
+.hljs {
+    padding: 24px;
     border-radius: 12px;
+}
+
+code {
+    padding: 6px;
+    background-color: #1D262F;
+    border-radius: 6px;
+    font-family: CartographCF !important;
 }

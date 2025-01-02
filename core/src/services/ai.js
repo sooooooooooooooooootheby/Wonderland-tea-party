@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import database from "./database.js";
 
 const openai = new OpenAI({
     apiKey: process.env.DASHSCOPE_API_KEY,
@@ -21,41 +20,17 @@ const streamSignleChat = async function* (message) {
     }
 };
 
-const multiwheelChat = async (uuid, message, messages) => {
-    async function getResponse(messages) {
-        try {
-            const completion = await openai.chat.completions.create({
-                model: "qwen-plus",
-                messages: messages,
-            });
+const multiwheelChat = async function* (messages) {
+    const response = await openai.chat.completions.create({
+        model: "qwen-plus",
+        messages: messages,
+        stream: true,
+    });
 
-            return completion.choices[0].message.content;
-        } catch (error) {
-            console.error("Error fetching response:", error);
-            throw error;
-        }
+    for await (const chunk of response) {
+        yield chunk;
     }
-
-    let status = 0;
-    let content = "";
-
-    await (async () => {
-        messages.push({ role: "user", content: message });
-        database.saveMessageRecord(uuid, "user", message);
-        try {
-            const response = await getResponse(messages);
-            content = response;
-            messages.push({ role: "assistant", content });
-            database.saveMessageRecord(uuid, "assistant", content);
-            status = 200;
-        } catch (error) {
-            status = 500;
-            content = "获取响应时发生错误:" + error;
-        }
-    })();
-
-    return { status, content };
-};
+}
 
 const ai = {
     streamSignleChat,

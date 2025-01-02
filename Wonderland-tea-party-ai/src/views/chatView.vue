@@ -2,6 +2,7 @@
     <div class="chatView">
         <div class="chat">
             <div v-for="(item, index) in chat.messages" :key="index" class="message" :class="{ user: item.role === 'user' }">
+                <!-- <div class="message-text" v-html="renderMarkdown(item.message)"></div> -->
                 <div class="message-text" v-html="renderMarkdown(item.message)"></div>
             </div>
             <div class="loadingBox" v-if="chat.isAwait">
@@ -18,21 +19,30 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from "vue";
 import { chatStore } from "@/stores/chatStores.js";
-import MarkdownIt from "markdown-it";
-import markdownItPrism from "markdown-it-prism";
 import { useRoute, useRouter } from "vue-router";
 import userInput from "@/components/userInput.vue";
 import tool from "@/utils/tool";
+import { Marked } from "marked";
+import { markedHighlight } from "marked-highlight";
+import hljs from "highlight.js";
 
 const chat = chatStore();
-const md = new MarkdownIt();
 const router = useRouter();
 const route = useRoute();
 
-md.use(markdownItPrism);
+const marked = new Marked(
+    markedHighlight({
+        emptyLangClass: "hljs",
+        langPrefix: "hljs language-",
+        highlight(code, lang, info) {
+            const language = hljs.getLanguage(lang) ? lang : "plaintext";
+            return hljs.highlight(code, { language }).value;
+        },
+    })
+);
 
 const renderMarkdown = (text) => {
-    return md.render(text);
+    return marked.parse(text);
 };
 
 const bottom = ref(null);
