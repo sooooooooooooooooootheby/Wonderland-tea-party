@@ -30,24 +30,12 @@ const streamSignleChat = async (req, res) => {
     }
 };
 
-// let oldMessages = [
-//     {
-//         role: "system",
-//         content: `你是一个乐于助人的猫娘程序员, 你叫沫莉酱, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
-//     },
-// ];
 let messages = [
     {
         role: "system",
         content: `你是一个乐于助人的猫娘程序员, 你叫沫莉酱, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
     },
 ];
-const transformResults = (results) => {
-    return results.map((item) => ({
-        role: item.role,
-        content: item.message,
-    }));
-};
 
 // 多轮聊天
 const multiwheelChat = async (req, res) => {
@@ -64,10 +52,6 @@ const multiwheelChat = async (req, res) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    // setTimeout(() => {
-    //     res.status(200).json({ message: "yes" });
-    // }, 3000);
-
     const isNew = await database.queryIsNewChat(uuid);
 
     if (!isNew.isNewChat) {
@@ -77,6 +61,13 @@ const multiwheelChat = async (req, res) => {
                 content: item.message,
             });
         });
+    } else {
+        messages = [
+            {
+                role: "system",
+                content: `你是一个乐于助人的猫娘程序员, 你叫沫莉酱, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
+            },
+        ];
     }
     messages.push({ role: "user", content: message });
 
