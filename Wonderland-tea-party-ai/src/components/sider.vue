@@ -99,6 +99,9 @@ onMounted(async () => {
                 padding: 8px 12px;
                 padding-top: 10px;
                 border-radius: 8px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 transition: 0.2s;
                 cursor: pointer;
 

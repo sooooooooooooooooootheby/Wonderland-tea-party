@@ -44,7 +44,8 @@ export const chatStore = defineStore("chat", {
 
             const token = localStorage.getItem("token");
             try {
-                const response = await fetch("https://api.sooooooooooooooooootheby.top/ai/chat/multiwheelChat", {
+                // const response = await fetch("https://api.sooooooooooooooooootheby.top/ai/chat/multiwheelChat", {
+                const response = await fetch("http://127.0.0.1:3000/chat/multiwheelChat", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -67,7 +68,6 @@ export const chatStore = defineStore("chat", {
                     let chunkText = decoder.decode(value, { stream: true });
 
                     if (done) {
-                        console.log(1);
                         chunkText = chunkText
                             .replace(/\[DONE\]\s*$/, "")
                             .replace(/\[DONE\]*$/, "")
