@@ -76,9 +76,9 @@ const multiwheelChat = async (req, res) => {
         const completion = ai.multiwheelChat(messages);
         for await (const chunk of completion) {
             fullContent += chunk.choices[0].delta.content;
-            res.write(`data: ${chunk.choices[0].delta.content}\n\n`);
+            res.write(`${chunk.choices[0].delta.content}`);
         }
-        res.write(`data: [DONE]\n\n`);
+        res.write(`data: [DONE]\n`);
         res.end();
         await database.saveMessageRecord(uuid, "user", message);
         await database.saveMessageRecord(uuid, "assistant", fullContent);

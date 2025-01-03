@@ -37,16 +37,45 @@ export const chatStore = defineStore("chat", {
                 role: "user",
                 message: input,
             });
+            this.messages.push({
+                role: "assistant",
+                message: "",
+            });
 
+            const token = localStorage.getItem("token");
             try {
-                const res = await Axios.post("/chat/multiwheelChat", {
-                    uuid: this.uuid,
-                    message: input,
+                const response = await fetch("https://api.sooooooooooooooooootheby.top/ai/chat/multiwheelChat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        uuid: this.uuid,
+                        message: input,
+                    }),
                 });
-                this.messages.push({
-                    role: "assistant",
-                    message: res.message,
-                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let done = false;
+                const chunks = [];
+
+                while (!done) {
+                    const { value, done: doneReading } = await reader.read();
+                    done = doneReading;
+                    let chunkText = decoder.decode(value, { stream: true });
+
+                    if (done) {
+                        console.log(1);
+                        chunkText = chunkText
+                            .replace(/\[DONE\]\s*$/, "")
+                            .replace(/\[DONE\]*$/, "")
+                            .trim();
+                    }
+
+                    this.messages[this.messages.length - 1].message += chunkText;
+                }
                 this.isAwaitSendMessage = false;
             } catch (error) {
                 console.log(error);

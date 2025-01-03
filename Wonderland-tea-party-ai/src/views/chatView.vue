@@ -82,6 +82,7 @@ onMounted(async () => {
         flex-direction: column;
 
         .message {
+            max-width: 100%;
             margin-bottom: 32px;
             padding: 4px 18px;
             border-radius: 12px;
