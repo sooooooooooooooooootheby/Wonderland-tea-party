@@ -176,59 +176,6 @@ export const useChatStore = defineStore("chat", {
                 message.error("回复出错:" + error);
                 console.error("回复出错:" + error);
             }
-        },
-        async sendMessagesss(uuid, input) {
-            if (!input) {
-                return message.error("你还没有输入!😿");
-            }
-            if (this.isAwaitAnswer) {
-                return message.warning("慢一点, 受不了了 🙀");
-            }
-
-            this.isAwaitAnswer = true;
-
-            const model = useModelStore();
-            const type = model.selectedModel.type;
-            const models = model.selectedModel.model;
-            this.chat.push({
-                role: "user",
-                content: input,
-            });
-
-            try {
-                const completion = multiwheelChat(this.chat, type, models, key);
-                this.chat.push({
-                    role: "assistant",
-                    content: ""
-                })
-                for await (const chunk of completion) {
-                    this.chat[this.chat.length - 1].content += chunk.choices[0].delta.content;
-                }
-                await $fetch("/api/chat/saveMessage", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    },
-                    body: JSON.stringify({uuid, model: models, role: "user", content: input}),
-                })
-                await $fetch("/api/chat/saveMessage", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    },
-                    body: JSON.stringify({
-                        uuid,
-                        model: models,
-                        role: "assistant",
-                        content: this.chat[this.chat.length - 1].content
-                    }),
-                })
-            } catch (error) {
-                message.error("回复出错:" + error);
-                console.error("回复出错:" + error);
-            }
             this.isAwaitAnswer = false;
         },
         async createNewChat(input) {
