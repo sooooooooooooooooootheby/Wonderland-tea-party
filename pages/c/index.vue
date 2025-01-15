@@ -13,7 +13,7 @@
                 <inputs/>
             </div>
         </div>
-<!--        <edit/>-->
+       <edit/>
     </div>
 </template>
 
