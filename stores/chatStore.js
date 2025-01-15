@@ -1,9 +1,9 @@
-import {defineStore} from "pinia";
-import {message} from "ant-design-vue";
+import { defineStore } from "pinia";
+import { message } from "ant-design-vue";
 import date from "s22y-utils";
-import {useModelStore} from "./modelStore.js";
+import { useModelStore } from "./modelStore.js";
 import OpenAI from "openai";
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 let openai;
 
@@ -53,10 +53,12 @@ export const useChatStore = defineStore("chat", {
         isAwaitChatList: true,
         chatList: [],
         isAwaitChat: true,
-        chat: [{
-            role: "system",
-            content: `你是一个乐于助人的猫娘程序员, 你叫爱丽丝, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
-        }],
+        chat: [
+            {
+                role: "system",
+                content: `你是一个乐于助人的猫娘程序员, 你叫爱丽丝, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
+            },
+        ],
         isAwaitAnswer: false,
         isNewChat: false,
         dashScopeApiKey: null,
@@ -65,7 +67,7 @@ export const useChatStore = defineStore("chat", {
     actions: {
         loadKey() {
             const config = useRuntimeConfig();
-            console.log(config)
+            console.log(config);
 
             if (process.server) {
                 this.dashScopeApiKey = config.dashScopeApiKey;
@@ -143,6 +145,8 @@ export const useChatStore = defineStore("chat", {
             const token = localStorage.getItem("token");
 
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
                 const response = await fetch(`/api/chat/chat`, {
                     method: "POST",
                     headers: {
@@ -155,12 +159,14 @@ export const useChatStore = defineStore("chat", {
                         uuid: uuid,
                         content: input,
                     }),
+                    signal: controller.signal,
                 });
+
+                clearTimeout(timeoutId);
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let done = false;
-                const chunks = [];
 
                 while (!done) {
                     const { value, done: doneReading } = await reader.read();
@@ -168,7 +174,7 @@ export const useChatStore = defineStore("chat", {
                     let chunkText = decoder.decode(value, { stream: true });
 
                     if (chunkText === "[DONE]") {
-                        return this.isAwaitAnswer = false;;
+                        return (this.isAwaitAnswer = false);
                     }
                     this.chat[this.chat.length - 1].content += chunkText;
                 }
@@ -182,15 +188,15 @@ export const useChatStore = defineStore("chat", {
             this.isNewChat = true;
             if (!Array.isArray(this.chatList["今天"])) {
                 this.chatList = {
-                    "今天": [],
-                    ...this.chatList
-                }
+                    今天: [],
+                    ...this.chatList,
+                };
             }
             const uuid = uuidv4();
             await navigateTo(`/c/${uuid}`);
-            this.chatList["今天"].unshift({uuid, data: "今天", content: input});
+            this.chatList["今天"].unshift({ uuid, data: "今天", content: input });
             await this.sendMessage(uuid, input);
             this.isNewChat = false;
-        }
+        },
     },
 });
