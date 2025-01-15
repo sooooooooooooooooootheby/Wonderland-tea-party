@@ -1,8 +1,6 @@
 import OpenAI from "openai";
 import chatDB from "~/server/database/chat.js";
 
-export const maxDuration = 60;
-
 let openai;
 let messages = [
     {
