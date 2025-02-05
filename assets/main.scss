@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@font-face {
+    font-family: ComicShannsMonoNerdFont-Regular;
+    src: url("~/assets/ComicShannsMonoNerdFont-Regular.otf");
+}
+
+.el-input__wrapper, .el-button {
+    border-radius: 12px !important;
+}
+
+.icons {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    transition: 0.2s;
+    cursor: pointer;
+
+    .icon {
+        font-size: 1.4rem;
+        color: #5D5D5D;
+    }
+}
+
+.icons:hover {
+    background-color: #ECECEC;
+
+    .icon {
+        color: #000000;
+    }
+}
+
+.hljs {
+    margin: 12px 0;
+    border-radius: 12px;
+    font-family: ComicShannsMonoNerdFont-Regular;
+}
+
+p>code {
+    padding: 4px 6px 2px 4px;
+    background-color: #282C34;
+    border-radius: 6px;
+    color: #FFFFFF;
+    font-family: ComicShannsMonoNerdFont-Regular;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    display: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
