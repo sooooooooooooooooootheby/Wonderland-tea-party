@@ -2,6 +2,8 @@ import userDB from "~/server/database/user.js";
 import jwt from "jsonwebtoken";
 import encryption from "s22y-utils";
 
+const config = useRuntimeConfig();
+
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const { username, password } = body;
@@ -13,7 +15,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    let saltPassword = encryption.passwordHash(password, process.env.TOEKNKEY);
+    let saltPassword = encryption.passwordHash(password, config.tokenKey);
 
     try {
         const results = await userDB.login(username, saltPassword);
@@ -31,8 +33,8 @@ export default defineEventHandler(async (event) => {
             };
         }
 
-        const token = jwt.sign({ name: results[0].name, id: results[0].id, role: results[0].role }, process.env.TOEKNKEY, {
-            expiresIn: process.env.TOKENOUTTIME,
+        const token = jwt.sign({ name: results[0].name, id: results[0].id, role: results[0].role }, config.tokenKey, {
+            expiresIn: config.tokenOutTime,
         });
         return {
             message: "登录成功",

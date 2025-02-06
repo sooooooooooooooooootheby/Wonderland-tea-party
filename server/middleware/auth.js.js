@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import userDB from "~/server/database/user.js";
 
+const config = useRuntimeConfig();
+
 export default defineEventHandler(async (event) => {
     if (!event._path.includes("/api") || event._path.includes("/api/user/login")) {
         return;
@@ -16,7 +18,7 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.TOEKNKEY);
+        const decoded = jwt.verify(token, config.tokenKey);
 
         const results = await userDB.queryState(decoded.id);
         if (results[0].state === "stop") {

@@ -27,7 +27,7 @@ export default defineNuxtConfig({
         databaseDatabase: process.env.DATABASE,
         databaseCharset: process.env.CHARSET,
 
-        tokenKey: process.env.TOKENKEY,
+        tokenKey: process.env.TOEKNKEY,
         tokenOutTime: process.env.TOKENOUTTIME,
     },
 
