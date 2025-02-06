@@ -72,6 +72,17 @@
                 </ol>
             </a-collapse-panel>
         </a-collapse>
+        <a-card size="small" title="密码加密工具" style="width: 300px; margin-top: 24px">
+            <a-input v-model:value="password" placeholder="原始密码" />
+            <a-input v-model:value="key" placeholder="key" style="margin: 12px 0" />
+            <a-button type="primary" @click="handlePassword(password, key)">转换</a-button>
+            <div class="out">
+                <a-input v-model:value="hashPassword" placeholder="转换结果" />
+                <a-button type="primary" class="copy" @click="copyPassword">
+                    <Icon name="mynaui:clipboard-solid" />
+                </a-button>
+            </div>
+        </a-card>
     </div>
 </template>
 
@@ -156,7 +167,24 @@ const state = ref([
 const activeKey = ref([]);
 
 const password = ref("");
+const key = ref("");
 const hashPassword = ref("");
+
+const handlePassword = (pa, key) => {
+    const p = encryption.passwordHash(pa, key);
+    hashPassword.value = encryption.passwordHash(p, key);
+};
+
+const copyPassword = async () => {
+    try {
+        await navigator.clipboard.writeText(hashPassword.value);
+        message.success("复制成功喵");
+    } catch (error) {
+        console.log(error);
+        message.error("复制失败喵" + error);
+    }
+
+}
 
 const getUserList = async () => {
     try {
@@ -269,6 +297,15 @@ onMounted(() => {
 
     h1 {
         margin-bottom: 12px;
+    }
+}
+.out {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+
+    .copy {
+        margin-left: 12px;
     }
 }
 </style>
