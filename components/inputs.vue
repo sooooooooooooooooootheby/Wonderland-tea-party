@@ -1,7 +1,7 @@
 <template>
     <div class="input">
         <div class="inputMain">
-            <a-dropdown placement="topLeft" :trigger="['click']" v-if="model.selectedModel.type">
+            <a-dropdown placement="topLeft" :trigger="['click']">
                 <a class="ant-dropdown-link" @click.prevent>
                     <div class="selectModel">
                         <img :src="`/${model.selectedModel.type}.png`" alt="model" />
@@ -12,7 +12,7 @@
                         <a-menu-item
                             v-for="item in model.modelList"
                             :key="item.id"
-                            @click="model.selectedModel = item"
+                            @click="selectModel(item)"
                             :disabled="item.status !== 'active'"
                         >
                             <div class="menuItem">
@@ -49,6 +49,11 @@ const route = useRoute();
 
 const uuid = route.params.uuid;
 const isShowSend = ref(true);
+
+const selectModel = (item) => {
+    model.selectedModel = item;
+    localStorage.setItem("model", JSON.stringify(item));
+};
 
 const handleSend = () => {
     if (!edit.input) {
