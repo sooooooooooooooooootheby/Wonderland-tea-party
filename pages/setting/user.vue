@@ -72,17 +72,33 @@
                 </ol>
             </a-collapse-panel>
         </a-collapse>
-        <a-card size="small" title="密码加密工具" style="width: 300px; margin-top: 24px">
-            <a-input v-model:value="password" placeholder="原始密码" />
-            <a-input v-model:value="key" placeholder="key" style="margin: 12px 0" />
-            <a-button type="primary" @click="handlePassword(password, key)">转换</a-button>
-            <div class="out">
-                <a-input v-model:value="hashPassword" placeholder="转换结果" />
-                <a-button type="primary" class="copy" @click="copyPassword">
-                    <Icon name="mynaui:clipboard-solid" />
-                </a-button>
+        <div class="set">
+            <div class="left">
+                <div class="sundry">
+                    <h2>杂项</h2>
+                    <div class="block">
+                        <span>允许用户自行注册</span>
+                        <a-switch
+                            v-model:checked="setting.user.isRegister"
+                            @click="setting.putSetting('isRegister', setting.user.isRegister)"
+                        />
+                    </div>
+                </div>
             </div>
-        </a-card>
+            <div class="right">
+                <a-card size="small" title="密码加密工具" style="width: 300px">
+                    <a-input v-model:value="password" placeholder="原始密码" />
+                    <a-input v-model:value="key" placeholder="key" style="margin: 12px 0" />
+                    <a-button type="primary" @click="handlePassword(password, key)">转换</a-button>
+                    <div class="out">
+                        <a-input v-model:value="hashPassword" placeholder="转换结果" />
+                        <a-button type="primary" class="copy" @click="copyPassword">
+                            <Icon name="mynaui:clipboard-solid" />
+                        </a-button>
+                    </div>
+                </a-card>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -90,6 +106,8 @@
 import { message } from "ant-design-vue";
 import { cloneDeep } from "lodash-es";
 import encryption from "s22y-utils";
+
+const setting = useSettingStore();
 
 const columns = [
     {
@@ -183,8 +201,7 @@ const copyPassword = async () => {
         console.log(error);
         message.error("复制失败喵" + error);
     }
-
-}
+};
 
 const getUserList = async () => {
     try {
@@ -305,6 +322,30 @@ onMounted(() => {
     align-items: center;
 
     .copy {
+        margin-left: 12px;
+    }
+}
+.set {
+    display: flex;
+    margin-top: 24px;
+
+    .left {
+        width: 100%;
+        border-right: 1px solid #d9d9d9;
+
+        .block {
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+
+            span {
+                margin-right: 8px;
+                font-size: 14px;
+            }
+        }
+    }
+    .right {
+        width: 300px;
         margin-left: 12px;
     }
 }

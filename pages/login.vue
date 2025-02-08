@@ -26,6 +26,7 @@
 
                     <a-button class="input" type="primary" html-type="submit">NEXT</a-button>
                 </a-form>
+                <span v-if="setting.isRegister">创建新的账号</span>
             </div>
         </div>
     </div>
@@ -34,6 +35,7 @@
 <script setup>
 const user = useUserStore();
 const greetings = useGreetingsStore();
+const setting = useSettingStore();
 
 const formState = reactive({
     username: "",

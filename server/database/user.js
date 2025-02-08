@@ -91,6 +91,32 @@ const addUser = (username, password, role, state, comment) => {
     });
 };
 
+const getSetting = () => {
+    return new Promise((resolve, reject) => {
+        const sqlStr = `SELECT * FROM system_user_setting`;
+
+        db.query(sqlStr, (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(results);
+        })
+    })
+}
+
+const putSetting = (key, value) => {
+    return new Promise((resolve, reject) => {
+        const sqlStr = `UPDATE system_user_setting SET ${key} = ? WHERE id = 1`;
+
+        db.query(sqlStr, [value], (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(results);
+        });
+    });
+};
+
 const userDB = {
     login,
     getUserInfo,
@@ -98,7 +124,9 @@ const userDB = {
     putUser,
     queryState,
     delUser,
-    addUser
+    addUser,
+    getSetting,
+    putSetting,
 };
 
 export default userDB;

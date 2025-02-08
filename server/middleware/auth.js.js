@@ -4,7 +4,7 @@ import userDB from "~/server/database/user.js";
 const config = useRuntimeConfig();
 
 export default defineEventHandler(async (event) => {
-    if (!event._path.includes("/api") || event._path.includes("/api/user/login")) {
+    if (!event._path.includes("/api") || event._path.includes("/api/user/login") || event._path.includes("/api/admin/getSetting")) {
         return;
     }
 

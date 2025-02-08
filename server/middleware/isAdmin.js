@@ -1,7 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 
 export default defineEventHandler(async (event) => {
-    if (!event._path.includes("/api/admin")) {
+    if (!event._path.includes("/api/admin") || event._path.includes("/api/admin/getSetting")) {
         return;
     }
 

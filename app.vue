@@ -22,6 +22,12 @@ useHead({
 		return titleChunk ? `${titleChunk} - s22y's webSite` : "s22y's webSite";
 	},
 });
+
+const setting = useSettingStore();
+
+onMounted(() => {
+    setting.getSetting();
+})
 </script>
 
 <style lang="scss" scoped></style>
