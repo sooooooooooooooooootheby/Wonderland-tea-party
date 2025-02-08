@@ -4,8 +4,6 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const { key, value } = body;
 
-    console.log(key, value);
-
     if (!key || value === null) {
         throw createError({
             statusCode: 404,
