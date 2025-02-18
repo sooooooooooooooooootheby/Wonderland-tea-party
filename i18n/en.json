@@ -1,0 +1,105 @@
+{
+    "welcome": "Welcome",
+    "client": {
+        "auth": {
+            "welcome": "welcome back~",
+            "username": "username",
+            "password": "password",
+            "none": "No input",
+            "login": "Login succeeds 🎉, Jump after 2 seconds",
+            "error": "Login request failed:",
+            "error1": "unknown error"
+        },
+        "chat": {
+            "suggested": {
+                "title": "Suggestions",
+                "button": "Give it a try?",
+                "message": "Just kidding. We don't have that function (for now, and maybe not in the future either). 😸",
+                "1": {
+                    "subTitle": "Create Images",
+                    "info": "Give me some text, and I'll generate some images for you."
+                },
+                "2": {
+                    "subTitle": "Write Code",
+                    "info": "Tell me your needs, and I'll help you out!"
+                },
+                "3": {
+                    "subTitle": "Summarize Text",
+                    "info": "Too much text? Let me help you summarize what it's all about."
+                },
+                "4": {
+                    "subTitle": "Analyze Data",
+                    "info": "Don't feel like analyzing data? Let me take a look!"
+                }
+            },
+            "chat": {
+                "regenerate": "Regenerate",
+                "copy": "Copy successfully!"
+            }
+        },
+        "sider": {
+            "new": "New Chat",
+            "lang": "Language",
+            "theme": "Theme",
+            "logout": "Log out",
+            "out": {
+                "title": "Logout 🙀",
+                "p": "Are you sure you want to logout?",
+                "button1": "no!",
+                "button2": "yes!"
+            },
+            "time": {
+                "today": "today",
+                "yesterday": "yesterday",
+                "tomorrow": "tomorrow",
+                "day": " day ",
+                "ago": "ago",
+                "later": "later"
+            }
+        },
+        "panel": {
+            "input": "Let me help you! 😼"
+        },
+        "store": {
+            "model": {
+                "error1": "Failed to obtain the model list"
+            },
+            "chat": {
+                "error1": "Error getting chat list:",
+                "error2": "Error obtaining chat history:",
+                "error3": "Sending message error:",
+                "noInput": "You haven't input! 😿",
+                "isAwait": "Slow down, I can't take it anymore 🙀"
+            }
+        }
+    },
+    "server": {
+        "error": "server error: ",
+        "user": {
+            "login": {
+                "none": "The username or password does not exist",
+                "error": "The username or password is incorrect",
+                "stop": "Account has stop",
+                "login": "login successfully"
+            }
+        },
+        "admin": {
+            "user&model": {
+                "user&model": {
+                    "InvalidAction": "Invalid action",
+                    "InvalidId": "Invalid id"
+                }
+            }
+        },
+        "chat": {
+            "uuid": "The uuid is empty",
+            "uid": "The uid is empty",
+            "ai": "The ai type is empty",
+            "model": "The model is empty",
+            "content": "The message is empty",
+            "isNew": "The isNew is empty",
+            "error": "Error in reply",
+            "messages": "No chat message found"
+        }
+    }
+}

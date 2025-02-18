@@ -19,7 +19,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
         if (!isAuthenticated()) {
             localStorage.removeItem("token");
             localStorage.removeItem("username");
-            return navigateTo("/login");
+            return navigateTo("/auth");
         }
     }
 });

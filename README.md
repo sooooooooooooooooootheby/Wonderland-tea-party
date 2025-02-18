@@ -1,25 +1,20 @@
-# Wonderland tea party
+# Wonderland tea party v1.0.0
 
 这是一个 ai 聊天应用, 使用 nuxt3.js 开发的前后端半一体化应用(为什么要叫半呢, 因为数据库需要手动配置).
 
-目前支持 `通义千问` 和 `Github的GPT-4o`
+目前支持 `通义千问` 和 `deepseek`.
 
-![pewview](./public/README/preview.webp)
-![pewview](./public/README/preview1.webp)
+现在部署比较麻烦, 有需要自己想部署玩玩可以联系我 dc @sooooooooooooooooootheby, dc 搜不到提个 issues
+
+## 截图
+
+![preview](/docs/image/image1.png)
 
 ## TODO:
 
-这是待写的
-- [ ] 注册
-- [ ] 模型管理
-- [ ] 在设置页面添加关于
-- [ ] 添加明暗模式
-- [ ] 移动端(打算制作uni-app)
-
-这是已写的
-- [x] 添加ai回复时的提示
-- [x] 添加回复时ai的信息
-- [x] 优化模型选择(根据聊天自动切换对应模型)
-- [x] 区分不同用户的聊天信息
-- [x] 有部分地方(login.post.js)环境变量获取好像有问题, 没有按照预期, 但是它还是好好运行了(?).
-- [x] 完善用户管理
+-   [ ] 删除聊天记录
+-   [ ] 修改用户发言
+-   [ ] 修改提示词
+-   [ ] 设置
+-   [ ] 关于
+-   [ ] 添加用户头像

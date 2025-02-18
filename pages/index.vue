@@ -1,7 +1,5 @@
 <template></template>
 
 <script setup>
-navigateTo("/c");
+navigateTo("/chat");
 </script>
-
-<style lang="scss" scoped></style>

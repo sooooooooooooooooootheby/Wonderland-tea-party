@@ -1,81 +1,84 @@
 import { defineStore } from "pinia";
+import { useI18n } from "vue-i18n";
 import { message } from "ant-design-vue";
-import date from "s22y-utils";
-import { useModelStore } from "./modelStore.js";
-import OpenAI from "openai";
 import { v4 as uuidv4 } from "uuid";
 
-let openai;
+const handleDate = (type = "date", date = Date.now(), t) => {
+    let res = null;
 
-const multiwheelChat = async function* (messages, type, model, key) {
-    const config = {
-        tyqw: {
-            apiKey: key,
-            baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            dangerouslyAllowBrowser: true,
-        },
-        github: {
-            apiKey: key,
-            baseURL: "https://models.inference.ai.azure.com",
-            dangerouslyAllowBrowser: true,
-        },
-    };
-
-    if (config[type]) {
-        openai = new OpenAI(config[type]);
-    } else {
-        throw new Error(`Unsupported type: ${type}`);
+    if (Math.floor(date / 10000000000) === 0) {
+        date *= 1000;
     }
 
-    const response = await openai.chat.completions.create({
-        model: model,
-        messages: messages,
-        stream: true,
-    });
+    switch (type) {
+        case "date":
+            const time = new Date(date);
+            const Y = time.getFullYear();
+            const M = time.getMonth() + 1 < 10 ? "0" + (time.getMonth() + 1) : time.getMonth() + 1;
+            const D = String(time.getDate()).padStart(2, "0");
+            const h = String(time.getHours()).padStart(2, "0");
+            const m = String(time.getMinutes()).padStart(2, "0");
+            const s = String(time.getSeconds()).padStart(2, "0");
 
-    if (type === "github") {
-        const chunks = [];
-        for await (const chunk of response) {
-            chunks.push(chunk);
-        }
-        for (let i = 1; i < chunks.length - 1; i++) {
-            yield chunks[i];
-        }
-    } else {
-        for await (const chunk of response) {
-            yield chunk;
-        }
+            res = `${Y}-${M}-${D} ${h}:${m}:${s}`;
+            break;
+        case "text":
+            const now = new Date();
+            const inputDate = new Date(date);
+            const diffTime = now - inputDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) {
+                res = t("client.sider.time.today");
+            } else if (diffDays === 1) {
+                res = t("client.sider.time.yesterday");
+            } else if (diffDays === -1) {
+                res = t("client.sider.time.tomorrow");
+            } else {
+                res = ` ${Math.abs(diffDays)}${t("client.sider.time.day")}${
+                    diffDays > 0 ? t("client.sider.time.ago") : t("client.sider.time.later")
+                }`;
+            }
+            break;
+        default:
+            console.error(`ERROR: The type = "${type}" parameter is incorrect`);
+            break;
     }
+
+    return res;
+};
+
+const analysisToken = (token) => {
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+        throw new Error("Invalid JWT");
+    }
+
+    const payload = parts[1];
+    const decodedPayload = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    const data = JSON.parse(decodedPayload);
+
+    return data;
 };
 
 export const useChatStore = defineStore("chat", {
     state: () => ({
-        isAwaitChatList: true,
         chatList: [],
-        isAwaitChat: true,
-        chat: [
-            {
-                role: "system",
-                content: `你是一个乐于助人的猫娘程序员, 你叫爱丽丝, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
-            },
-        ],
+        chat: [],
+
         isAwaitAnswer: false,
         isNewChat: false,
-        dashScopeApiKey: null,
-        githubApiKey: null,
     }),
     actions: {
-        // 获取聊天列表
-        async getChatList() {
+        async getList() {
+            const { $fetch } = useNuxtApp();
+            const { t } = useI18n();
+
             try {
-                const response = await $fetch(`/api/chat/getChatList?uid=${localStorage.getItem("uid")}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
+                const response = await $fetch(`/api/chat/getList?uid=${localStorage.getItem("uid")}`);
                 let list = response.results;
                 for (let i = 0; i < response.results.length; i++) {
-                    list[i].data = date.handleDate("text", response.results[i].data);
+                    list[i].data = handleDate("text", response.results[i].data, t);
                 }
 
                 const groupedChatList = Object.values(
@@ -91,81 +94,274 @@ export const useChatStore = defineStore("chat", {
 
                 groupedChatList.sort((a, b) => new Date(b.date) - new Date(a.date));
                 this.chatList = groupedChatList;
-                this.isAwaitChatList = false;
             } catch (error) {
-                console.error(error);
-                message.error(error.response._data.message);
+                console.log(error);
+                message.error(t("client.store.chat.error1") + error);
             }
         },
-        // 获取聊天信息
         async getChat(uuid) {
+            const { $fetch } = useNuxtApp();
+            const { t } = useI18n();
+
             try {
-                const response = await $fetch(`/api/chat/getChat?uuid=${uuid}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
-                for (let i = 0; i < response.results.length; i++) {
-                    this.chat.push(response.results[i]);
-                }
-                const model = useModelStore();
-                const models = response.results[response.results.length - 1].model;
-                const foundModel = model.modelList.find((item) => item.model === models);
+                const response = await $fetch(`/api/chat/getChat?uuid=${uuid}`);
 
-                if (foundModel) {
-                    model.selectedModel = { ...foundModel };
-                }
-
-                this.isAwaitChat = false;
+                this.chat = response.results.results;
             } catch (error) {
                 console.error(error);
-                message.error(error.response._data.message);
+                message.error(t("client.store.chat.error2") + error);
             }
         },
-        // 聊天
-        async sendMessage(uuid, input) {
-            if (!input) {
-                return message.error("你还没有输入!😿");
+        /*
+         * 这是答辩, 用 ai 优化了一下, 我留着是怕删了原来的代码, 看不懂 ai 写的了
+         */
+        // async send(content, t) {
+        //     const route = useRoute();
+        //     const router = useRouter();
+        //     const { $fetch } = useNuxtApp();
+
+        //     if (!content) {
+        //         return message.error(t("client.store.chat.noInput"));
+        //     }
+        //     if (this.isAwaitAnswer) {
+        //         return message.warning(t("client.store.chat.isAwait"));
+        //     }
+
+        //     this.isAwaitAnswer = true;
+
+        //     try {
+        //         const uid = analysisToken(localStorage.getItem("token")).id;
+        //         const { type, model } = JSON.parse(localStorage.getItem("model"));
+
+        //         let uuid = route.params.uuid;
+        //         let isNew = false;
+        //         if (!uuid) {
+        //             this.isNewChat = true;
+        //             uuid = uuidv4();
+        //             router.push(`/chat/${uuid}`);
+        //             this.listAddItem(uuid, content, t);
+        //             isNew = true;
+        //         }
+
+        //         this.chat.push({
+        //             id: null,
+        //             uid: uid,
+        //             model: model,
+        //             role: "user",
+        //             content: content,
+        //         });
+        //         this.chat.push({
+        //             id: null,
+        //             uid: uid,
+        //             model: model,
+        //             role: "assistant",
+        //             content: "",
+        //         });
+
+        //         const token = localStorage.getItem("token");
+        //         const controller = new AbortController();
+        //         const timeoutId = setTimeout(() => controller.abort(), 60000);
+        //         const response = await fetch(`/api/chat/chat`, {
+        //             method: "POST",
+        //             headers: {
+        //                 "Content-Type": "application/json",
+        //                 Authorization: `Bearer ${token}`,
+        //             },
+        //             body: JSON.stringify({
+        //                 uuid: uuid,
+        //                 uid: uid,
+        //                 type: type,
+        //                 model: model,
+        //                 content: content,
+        //                 isNew: isNew,
+        //             }),
+        //             signal: controller.signal,
+        //         });
+
+        //         clearTimeout(timeoutId);
+
+        //         const reader = response.body.getReader();
+        //         const decoder = new TextDecoder();
+        //         let done = false;
+
+        //         while (!done) {
+        //             const { value, done: doneReading } = await reader.read();
+        //             done = doneReading;
+        //             let chunkText = decoder.decode(value, { stream: true });
+        //             this.chat[this.chat.length - 1].content += chunkText;
+        //         }
+
+        //         try {
+        //             const response = await $fetch(`/api/chat/getChat?uuid=${uuid}`);
+
+        //             this.chat = response.results.results;
+        //         } catch (error) {
+        //             console.error(error);
+        //             message.error(t("client.store.chat.error2") + error);
+        //         }
+        //     } catch (error) {
+        //         console.error(error);
+        //         message.error(t("client.store.chat.error3") + error);
+        //     } finally {
+        //         this.isAwaitAnswer = false;
+        //     }
+        // },
+        async send(content, t) {
+            const route = useRoute();
+            const router = useRouter();
+            const { $fetch } = useNuxtApp();
+
+            // 输入验证
+            if (!content) {
+                return message.error(t("client.store.chat.noInput"));
             }
             if (this.isAwaitAnswer) {
-                return message.warning("慢一点, 受不了了 🙀");
+                return message.warning(t("client.store.chat.isAwait"));
             }
 
             this.isAwaitAnswer = true;
 
-            const uid = localStorage.getItem("uid");
-            const model = useModelStore();
-            const type = model.selectedModel.type;
-            const models = model.selectedModel.model;
-            this.chat.push({
-                id: null,
-                model: models,
-                role: "user",
-                content: input,
-            });
-            this.chat.push({
-                id: null,
-                model: models,
-                role: "assistant",
-                content: "",
-            });
-            const token = localStorage.getItem("token");
+            try {
+                // 获取用户信息
+                const token = localStorage.getItem("token");
+                const { id: uid } = analysisToken(token);
+                const { type, model } = JSON.parse(localStorage.getItem("model"));
+
+                let uuid = route.params.uuid;
+                let isNew = false;
+
+                // 如果没有uuid，表示是新聊天
+                if (!uuid) {
+                    this.isNewChat = true;
+                    uuid = uuidv4();
+                    router.push(`/chat/${uuid}`);
+                    this.listAddItem(uuid, content, t);
+                    isNew = true;
+                }
+
+                // 发送用户消息并准备接收AI消息
+                this.chat.push({ id: null, uid, model, role: "user", content });
+                this.chat.push({ id: null, uid, model, role: "assistant", content: "" });
+
+                // 发送请求到后端
+                const response = await this.sendChatRequest({ uuid, uid, type, model, content, isNew, token });
+
+                // 处理流式数据并更新聊天记录
+                await this.handleChatStream(response);
+
+                // 获取最新的聊天记录
+                await this.updateChatHistory(uuid, $fetch, t);
+            } catch (error) {
+                console.error(error);
+                message.error(t("client.store.chat.error3") + error);
+            } finally {
+                this.isAwaitAnswer = false;
+            }
+        },
+        // 发送聊天请求
+        async sendChatRequest({ uuid, uid, type, model, content, isNew, token }) {
+            const controller = new AbortController();
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), 60000));
 
             try {
+                const response = await Promise.race([
+                    fetch("/api/chat/chat", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ uuid, uid, type, model, content, isNew }),
+                        signal: controller.signal,
+                    }),
+                    timeoutPromise,
+                ]);
+                return response;
+            } catch (error) {
+                controller.abort();
+                throw error;
+            }
+        },
+        // 处理聊天流
+        async handleChatStream(response) {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let done = false;
+
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                const chunkText = decoder.decode(value, { stream: true });
+                this.chat[this.chat.length - 1].content += chunkText;
+            }
+        },
+        // 更新聊天记录
+        async updateChatHistory(uuid, $fetch, t) {
+            try {
+                const response = await $fetch(`/api/chat/getChat?uuid=${uuid}`);
+                this.chat = response.results.results;
+            } catch (error) {
+                console.error(error);
+                message.error(t("client.store.chat.error2") + error);
+            }
+        },
+
+        async listAddItem(uuid, content, t) {
+            let todayChat = this.chatList.find((item) => item.date === t("client.sider.time.today"));
+
+            if (todayChat) {
+                this.chatList[0].items.unshift({
+                    uuid: uuid,
+                    data: t("client.sider.time.today"),
+                    content: content,
+                });
+            } else {
+                this.chatList.unshift({
+                    date: t("client.sider.time.today"),
+                    items: [
+                        {
+                            uuid: uuid,
+                            data: t("client.sider.time.today"),
+                            content: content,
+                        },
+                    ],
+                });
+            }
+        },
+        async regenerate(id, t) {
+            const route = useRoute();
+            const { $fetch } = useNuxtApp();
+
+            if (this.isAwaitAnswer) {
+                return message.warning(t("client.store.chat.isAwait"));
+            }
+
+            this.isAwaitAnswer = true;
+
+            try {
+                const uid = analysisToken(localStorage.getItem("token")).id;
+                const { type, model } = JSON.parse(localStorage.getItem("model"));
+                const uuid = route.params.uuid;
+
+                const index = this.chat.findIndex(item => item.id === id);
+                this.chat[index].content = "";
+                this.chat.splice(index + 1);
+
+                const token = localStorage.getItem("token");
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 60000);
-                const response = await fetch(`/api/chat/chat`, {
+                const response = await fetch(`/api/chat/regenerate`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify({
+                        uuid: uuid,
                         uid: uid,
                         type: type,
-                        model: models,
-                        uuid: uuid,
-                        content: input,
+                        model: model,
+                        content: this.chat,
                     }),
                     signal: controller.signal,
                 });
@@ -180,49 +376,17 @@ export const useChatStore = defineStore("chat", {
                     const { value, done: doneReading } = await reader.read();
                     done = doneReading;
                     let chunkText = decoder.decode(value, { stream: true });
-
-                    if (chunkText === "[DONE]") {
-                        return (this.isAwaitAnswer = false);
-                    }
                     this.chat[this.chat.length - 1].content += chunkText;
+
+                    if (chunkText.includes("[DONE]")) {
+                        await this.updateChatHistory(uuid, $fetch, t);
+                    }
                 }
             } catch (error) {
-                message.error("回复出错:" + error);
-                console.error("回复出错:" + error);
-            }
-            this.isAwaitAnswer = false;
-        },
-        // 创建新的聊天
-        async createNewChat(input) {
-            this.isNewChat = true;
-            const uuid = uuidv4();
-            await navigateTo(`/c/${uuid}`);
-
-            let todayChat = this.chatList.find((item) => item.date === "今天");
-            if (!todayChat) {
-                todayChat = {
-                    date: "今天",
-                    items: [
-                        {
-                            uuid: uuid,
-                            data: "今天",
-                            content: input,
-                        },
-                    ],
-                };
-                this.chatList.unshift(todayChat);
-                await this.sendMessage(uuid, input);
-                this.isNewChat = false;
-            } else {
-                const item = {
-                    uuid: uuid,
-                    data: "今天",
-                    content: input,
-                };
-
-                todayChat.items.unshift(item);
-                await this.sendMessage(uuid, input);
-                this.isNewChat = false;
+                console.error(error);
+                message.error(t("client.store.chat.error3") + error);
+            } finally {
+                this.isAwaitAnswer = false;
             }
         },
     },

@@ -1,191 +1,347 @@
 <template>
-    <div class="sider">
-        <div class="bar">
-            <div class="left">
-                <div class="icons" @click="emit('updateSiderWidth', '0px')">
-                    <Icon class="icon" name="mynaui:panel-right-open-solid" />
-                </div>
-                <a-dropdown placement="bottomLeft" :trigger="['click']">
-                    <a class="ant-dropdown-link" @click.prevent>
-                        <div class="icons">
-                            <Icon class="icon" name="mynaui:menu" />
-                        </div>
-                    </a>
-                    <template #overlay>
-                        <a-menu>
-                            <a-menu-item @click="user.logout">
-                                <div class="siderMenuItem">
-                                    <Icon name="mynaui:logout-solid" />
-                                    <span>退出登录</span>
-                                </div>
-                            </a-menu-item>
-                            <a-menu-item @click="dev = true">
-                                <div class="siderMenuItem">
-                                    <Icon name="mynaui:tool-solid" />
-                                    <span>调试工具</span>
-                                </div>
-                            </a-menu-item>
-                            <a-menu-item @click="navigateTo('/setting')" v-if="isAdmin">
-                                <div class="siderMenuItem">
-                                    <Icon name="mynaui:cog-solid" />
-                                    <span>设置</span>
-                                </div>
-                            </a-menu-item>
-                        </a-menu>
-                    </template>
-                </a-dropdown>
-            </div>
-            <div class="right">
-                <div class="icons" @click="navigateTo(handleSkip(`/c`))">
-                    <Icon class="icon" name="mynaui:edit-one-solid" />
-                </div>
+    <div class="siders">
+        <div class="header">
+            <img src="/logo_small.webp" alt="" />
+            <div class="close" @click="hideSider">
+                <Icon class="icon" name="mynaui:x" />
             </div>
         </div>
-        <ul class="menu">
-            <a-list size="small" :data-source="chat.chatList" v-if="!chat.isAwaitChatList">
-                <template #renderItem="{ item }">
-                    <p class="date">{{ item.date }}</p>
-                    <a-list size="small" :data-source="item.items">
-                        <template #renderItem="{ item }">
-                            <p
-                                class="item"
-                                :class="{ isActive: item.uuid === route.params.uuid }"
-                                @click="handleSkip(`/c/${item.uuid}`)"
-                            >
-                                {{ item.content }}
-                            </p>
-                        </template>
-                    </a-list>
-                </template>
-            </a-list>
-            <div class="load" v-else>
-                <a-spin class="spin" :indicator="indicator" />
-            </div>
-        </ul>
-        <a-drawer v-model:open="dev" class="custom-class" root-class-name="root-class-name" title="开发工具" placement="right">
-            <h2>chat store</h2>
-            <p>isAwaitChatList: {{ chat.isAwaitChatList }}</p>
-            <p>isAwaitChat: {{ chat.isAwaitChat }}</p>
-            <p>isAwaitAnswer: {{ chat.isAwaitAnswer }}</p>
-            <p>isNewChat: {{ chat.isNewChat }}</p>
+        <button class="btn btn-neutral" @click="navigateTo('/chat')">
+            <Icon class="icon" name="mynaui:plus" />{{ $t("client.sider.new") }}
+        </button>
+        <div class="list">
+            <ul v-if="chat.chatList && chat.chatList.length > 0">
+                <li v-for="(item, index) in chat.chatList" :key="index" class="day">
+                    <div class="time">{{ item.date }}</div>
+                    <ul>
+                        <li
+                            v-for="(items, indexs) in item.items"
+                            :key="indexs"
+                            class="content"
+                            :class="{ active: items.uuid === route.params.uuid }"
+                            @click="navigateTo(`/chat/${items.uuid}`)"
+                        >
+                            <Icon class="icon" name="mynaui:message-dots" />
+                            <span>{{ items.content }}</span>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="loading" v-else></div>
+        </div>
+        <div class="bottom">
+            <ul>
+                <li class="item" @click="devTool = !devTool">
+                    <Icon class="icon" name="mynaui:tool-solid" />
+                    <span class="text">Developer tools</span>
+                </li>
+                <div class="dropdown dropdown-right dropdown-end">
+                    <li tabindex="0" role="button" class="item">
+                        <Icon class="icon" name="flowbite:language-outline" /><span class="text">{{
+                            $t("client.sider.lang")
+                        }}</span>
+                    </li>
+                    <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                        <li><a @click="setLocale('zh')">简体中文</a></li>
+                        <li><a @click="setLocale('en')">English</a></li>
+                    </ul>
+                </div>
+                <label for="theme-toggle">
+                    <li class="item">
+                        <Icon class="icon" name="mynaui:moon-star-solid" />
+                        <span class="text">{{ $t("client.sider.theme") }}</span>
+                        <input
+                            type="checkbox"
+                            id="theme-toggle"
+                            class="toggle theme-controller"
+                            @click="handleTheme"
+                            v-model="isDarkTheme"
+                        />
+                    </li>
+                </label>
+                <li class="item logout" onclick="logout.showModal()">
+                    <Icon class="icon" name="mynaui:logout-solid" /><span class="text">{{ $t("client.sider.logout") }}</span>
+                </li>
+                <dialog id="logout" class="modal modal-bottom sm:modal-middle">
+                    <div class="modal-box">
+                        <h3 class="text-lg font-bold">{{ $t("client.sider.out.title") }}</h3>
+                        <p class="py-4">{{ $t("client.sider.out.p") }}</p>
+                        <div class="bar">
+                            <form method="dialog">
+                                <button class="btn">{{ $t("client.sider.out.button1") }}</button>
+                            </form>
+                            <button class="btn exit" @click="handleLogout">{{ $t("client.sider.out.button2") }}</button>
+                        </div>
+                    </div>
+                </dialog>
+            </ul>
+        </div>
+        <a-drawer
+            v-model:open="devTool"
+            class="custom-class"
+            root-class-name="root-class-name"
+            title="developer tools"
+            placement="right"
+        >
+            <code>chat list: {{ chat.chatList }}</code>
             <br />
-            <p>chatList: {{ chat.chatList }}</p>
             <br />
-            <p>chat: {{ chat.chat }}</p>
-            <br />
-            <br />
-            <h2>model store</h2>
-            <p>modelList: {{ model.modelList }}</p>
-            <br />
-            <p>selectedModel: {{ model.selectedModel }}</p>
+            <code>chat: {{ chat.chat }}</code>
         </a-drawer>
     </div>
 </template>
 
 <script setup>
-import { LoadingOutlined } from "@ant-design/icons-vue";
-
+const emit = defineEmits(["cutSider"]);
 const chat = useChatStore();
-const user = useUserStore();
-const model = useModelStore();
-const emit = defineEmits();
 const route = useRoute();
+const { t, setLocale } = useI18n();
 
-const dev = ref(false);
+const isDarkTheme = ref(false);
+const devTool = ref(false);
 
-const handleSkip = (path) => {
-    if (path === route.path) {
-        return;
-    }
-    chat.chat = [
-        {
-            role: "system",
-            content: `你是一个乐于助人的猫娘程序员, 你叫爱丽丝, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
-        },
-    ];
-    navigateTo(path);
+const handleTheme = () => {
+    const htmlElement = document.documentElement;
+    const currentTheme = htmlElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    htmlElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
 };
 
-const indicator = h(LoadingOutlined, {
-    style: {
-        fontSize: "18px",
-    },
-    spin: true,
-});
+const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("uid");
+    navigateTo("/auth");
+};
 
-const isAdmin = computed(() => user.isAdmin);
+const hideSider = () => {
+    emit("cutSider");
+};
 
 onMounted(() => {
-    chat.getChatList();
+    chat.getList();
+
+    const theme = localStorage.getItem("theme");
+    if (theme && theme === "dark") {
+        isDarkTheme.value = true;
+    }
 });
 </script>
 
 <style lang="scss" scoped>
-.sider {
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    white-space: nowrap;
+[data-theme="dark"] .siders {
+    border: 1px solid #2b3039;
 
-    .bar {
-        padding: 10px;
-        display: flex;
-        justify-content: space-between;
+    .list {
+        ul {
+            .day {
+                border-top: 1px solid #2b3039;
 
-        .left {
-            width: 100%;
-            display: flex;
-
-            .icons {
-                margin-right: 4px;
+                .content:hover {
+                    background-color: #2b3039;
+                }
             }
         }
     }
+    .bottom {
+        border-top: 1px solid #2b3039;
 
-    .menu {
-        height: calc(100% - 60px);
-        padding: 10px;
-        overflow: scroll;
-        overflow-x: hidden;
+        ul {
+            li:hover {
+                background-color: #2b3039;
+            }
+        }
+    }
+}
+.siders {
+    width: 100%;
+    height: 100%;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
 
-        .load {
-            width: 100%;
-            padding-right: 12px;
-            display: flex;
+    .header {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        img {
+            width: 48px;
+            height: 48px;
+            border-radius: 999px;
+        }
+        .close {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            display: none;
+            align-items: center;
             justify-content: center;
+            border-radius: 8px;
+
+            .icon {
+                font-size: 1.4rem;
+            }
+        }
+        .close:hover {
+            background-color: #e5e7eb;
+        }
+    }
+    .btn {
+        width: 100%;
+        border-radius: 16px;
+
+        .icon {
+            font-size: 1.2rem;
+        }
+    }
+    .list {
+        width: 100%;
+        margin: 12px 0;
+        flex-grow: 1;
+        display: flex;
+        justify-content: center;
+        overflow: scroll;
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 0), black 40px, black calc(100% - 10px), rgba(0, 0, 0, 0));
+        -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0), black 40px, black calc(100% - 10px), rgba(0, 0, 0, 0));
+
+        ul {
+            width: 100%;
+            margin-top: 4px;
+
+            .day {
+                border-top: 1px solid #e5e7eb;
+                margin-bottom: 12px;
+
+                .time {
+                    margin-left: 8px;
+                    padding-top: 6px;
+                    opacity: 0.8;
+                }
+                .content {
+                    display: flex;
+                    align-items: center;
+                    margin: 2px 0;
+                    padding: 6px 8px;
+                    border-radius: 12px;
+                    transition: 0.2s;
+                    cursor: pointer;
+
+                    .icon {
+                        flex-shrink: 0;
+                        margin-right: 4px;
+                        font-size: 17px;
+                    }
+                    span {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+                .content:hover {
+                    background-color: #e5e7eb;
+                }
+                .active {
+                    color: #ffffff;
+                    background-color: #2b3440d8;
+                }
+                .active:hover {
+                    background-color: #2b3440d8;
+                }
+            }
+        }
+        .loading {
+            margin-top: 12px;
+        }
+    }
+    .bottom {
+        width: 100%;
+        padding-top: 14px;
+        border-top: 1px solid #e5e7eb;
+
+        ul {
+            .item {
+                list-style: none;
+                margin: 2px 0;
+                padding: 6px 8px;
+                display: flex;
+                align-items: center;
+                border-radius: 12px;
+                transition: 0.2s;
+                cursor: pointer;
+
+                .icon {
+                    margin-right: 4px;
+                    font-size: 1.2rem;
+                }
+                .text {
+                    flex-grow: 1;
+                }
+                .toggle {
+                    scale: 0.8;
+                }
+            }
+            .item:hover {
+                background-color: #e5e7eb;
+            }
+            .logout {
+                color: #ff5861;
+            }
+            .logout:hover {
+                background-color: #ff58602f;
+            }
+            .modal {
+                .modal-box {
+                    .bar {
+                        display: flex;
+                        justify-content: flex-end;
+
+                        .exit {
+                            width: auto;
+                            margin-left: 12px;
+                            color: #ff5861;
+                            background-color: #ff58602f;
+                        }
+                        .exit:hover {
+                            border-color: #ff5861;
+                        }
+                    }
+                }
+            }
+        }
+        .dropdown {
+            width: 100%;
+
+            .dropdown-content {
+                bottom: 42px;
+                left: 0;
+            }
         }
     }
 }
 
-.date {
-    margin-bottom: 4px;
-    margin-left: 8px;
-    font-weight: bold;
-}
+@media (max-width: 900px) {
+    .siders {
+        height: 100vh;
+        border: none;
+        border-right: 1px solid #e5e7eb;
+        border-radius: 0;
 
-.item {
-    margin: 2px 0;
-    padding: 6px 8px;
-    border-radius: 8px;
-    transition: 0.2s;
-    cursor: pointer;
-    overflow: hidden;
-}
-
-.item:hover {
-    background-color: rgba(224, 224, 224, 0.5);
-}
-
-.isActive {
-    background-color: #e0e0e0 !important;
-}
-
-.siderMenuItem {
-    display: flex;
-    align-items: center;
-
-    span {
-        margin-right: 4px;
+        .header {
+            .close {
+                display: flex;
+            }
+        }
+        .bottom {
+            .dropdown {
+                .dropdown-content {
+                    left: 0;
+                }
+            }
+        }
     }
 }
 </style>

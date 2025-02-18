@@ -4,30 +4,34 @@ import { message } from "ant-design-vue";
 export const useModelStore = defineStore("model", {
     state: () => ({
         modelList: [],
-        selectedModel: {},
+        model: {},
     }),
     actions: {
         // 获取模型列表
         async getModelList() {
-            const selected = localStorage.getItem("model");
-            if (selected) {
-                this.selectedModel = JSON.parse(selected);
-            }
+            const { $fetch } = useNuxtApp();
+            const { t } = useI18n();
 
             try {
-                const res = await $fetch("/api/model/getModelList", {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                });
-                this.modelList = res.results;
+                const response = await $fetch("/api/model/getList");
+                this.modelList = response.results;
 
-                if (!this.selectedModel || Object.keys(this.selectedModel).length === 0) {
-                    this.selectedModel = this.modelList[0];
+                const selected = localStorage.getItem("model");
+                if (selected) {
+                    this.model = JSON.parse(selected);
+                } else {
+                    this.model = this.modelList[0];
+                    localStorage.setItem("model", JSON.stringify(this.model));
                 }
             } catch (error) {
-                message.error(`获取模型列表出错: ${error}`);
+                console.log(error);
+                message.error(t("client.store.model.error1") + ":" + error.response._data.message);
             }
+        },
+        // 切换模型
+        selectModel(model) {
+            this.model = model;
+            localStorage.setItem("model", JSON.stringify(model));
         },
     },
 });

@@ -1,25 +1,61 @@
-import { defineNuxtConfig } from "nuxt/config";
+import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 
 export default defineNuxtConfig({
-    compatibilityDate: "2025-01-12",
-    modules: ["@pinia/nuxt", "@nuxt/icon", "@ant-design-vue/nuxt", "nuxt-monaco-editor"],
-
-    css: ["highlight.js/styles/atom-one-dark.css", "~/assets/main.scss"],
+    compatibilityDate: "2024-11-01",
+    devtools: { enabled: true },
+    modules: [
+        "@pinia/nuxt",
+        "@nuxtjs/tailwindcss",
+        "@nuxtjs/i18n",
+        "@nuxt/icon",
+        "@ant-design-vue/nuxt",
+        (_options, nuxt) => {
+            nuxt.hooks.hook("vite:extendConfig", (config) => {
+                // @ts-expect-error
+                config.plugins.push(vuetify({ autoImport: true }));
+            });
+        },
+    ],
 
     build: {
-        transpile: ["resize-observer-polyfill"],
+        transpile: ["vuetify", 'vue'],
+    },
+
+    vite: {
+        vue: {
+            template: {
+                transformAssetUrls,
+            },
+        },
+    },
+
+    css: ["~/assets/main.scss", "~/assets/prism.scss"],
+
+    plugins: ["~/plugins/fetchInterceptor.js"],
+
+    i18n: {
+        vueI18n: "./i18n.config.ts",
+        locales: ["en", "zh"],
+        defaultLocale: "en",
+        experimental: {
+            localeDetector: "localeDetector.ts",
+        },
     },
 
     serverHandlers: [
         {
-            route: "/api/*", // 设置你想匹配的路径
-            handler: "~/server/middleware/auth.js", // 指定中间件的路径
+            route: "/api/*",
+            handler: "~/server/middleware/auth.js",
+        },
+        {
+            route: "/api/admin/*",
+            handler: "~/server/middleware/isAdmin.js",
         },
     ],
 
     runtimeConfig: {
-        dashScopeApiKey: process.env.DASHSCOPE_API_KEY,
-        githubApiKey: process.env.GITHUB_API_KEY,
+        qwenKey: process.env.QWEN_API_KEY,
+        deepseekKey: process.env.DEEPSEEK_API_KEY,
 
         databaseHost: process.env.HOST,
         databaseUser: process.env.USER,
@@ -27,8 +63,11 @@ export default defineNuxtConfig({
         databaseDatabase: process.env.DATABASE,
         databaseCharset: process.env.CHARSET,
 
-        tokenKey: process.env.TOEKNKEY,
+        tokenKeyServer: process.env.TOEKNKEY_SERVER,
         tokenOutTime: process.env.TOKENOUTTIME,
-    },
 
+        public: {
+            tokenKeyClient: process.env.TOEKNKEY_CLIENT,
+        },
+    },
 });
