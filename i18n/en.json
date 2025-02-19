@@ -48,6 +48,12 @@
                 "button1": "no!",
                 "button2": "yes!"
             },
+            "del": {
+                "title": "Delete this chat 🙀",
+                "p": "Are you sure you want to delete this chat?",
+                "button1": "no!",
+                "button2": "yes!"
+            },
             "time": {
                 "today": "today",
                 "yesterday": "yesterday",
@@ -68,6 +74,8 @@
                 "error1": "Error getting chat list:",
                 "error2": "Error obtaining chat history:",
                 "error3": "Sending message error:",
+                "error4": "delete chat error:",
+                "success1": "delete chat successfully",
                 "noInput": "You haven't input! 😿",
                 "isAwait": "Slow down, I can't take it anymore 🙀"
             }

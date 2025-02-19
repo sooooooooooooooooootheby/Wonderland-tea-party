@@ -345,7 +345,7 @@ export const useChatStore = defineStore("chat", {
                 const { type, model } = JSON.parse(localStorage.getItem("model"));
                 const uuid = route.params.uuid;
 
-                const index = this.chat.findIndex(item => item.id === id);
+                const index = this.chat.findIndex((item) => item.id === id);
                 this.chat[index].content = "";
                 this.chat.splice(index + 1);
 

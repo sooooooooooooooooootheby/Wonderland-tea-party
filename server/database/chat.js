@@ -76,12 +76,27 @@ const delMessage = (uuid, id) => {
     });
 };
 
+// 删除聊天记录
+const delChat = (uuid) => {
+    return new Promise((resolve, reject) => {
+        const sqlStr = `DELETE FROM messages_record WHERE uuid = ?;`;
+
+        db.query(sqlStr, [uuid], (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(results);
+        });
+    });
+};
+
 const chatDB = {
     getChat,
     saveMessage,
     getList,
     getMessages,
-    delMessage
+    delMessage,
+    delChat
 };
 
 export default chatDB;

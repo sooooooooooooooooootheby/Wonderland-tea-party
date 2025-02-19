@@ -19,10 +19,26 @@
                             :key="indexs"
                             class="content"
                             :class="{ active: items.uuid === route.params.uuid }"
-                            @click="navigateTo(`/chat/${items.uuid}`)"
                         >
-                            <Icon class="icon" name="mynaui:message-dots" />
-                            <span>{{ items.content }}</span>
+                            <div class="text" @click="navigateTo(`/chat/${items.uuid}`)">
+                                <Icon class="icon" name="mynaui:message-dots" />
+                                <span>{{ items.content }}</span>
+                            </div>
+                            <div class="button" :onclick="`${'a' + items.uuid.split('-')[0]}.showModal()`">
+                                <Icon class="icon" name="mynaui:trash-two-solid" />
+                            </div>
+                            <dialog :id="'a' + items.uuid.split('-')[0]" class="modal modal-bottom sm:modal-middle">
+                                <div class="modal-box">
+                                    <h3 class="text-lg font-bold">{{ $t("client.sider.del.title") }}</h3>
+                                    <p class="py-4">{{ $t("client.sider.del.p") }}</p>
+                                    <form method="dialog" class="form">
+                                        <button class="btn">{{ $t("client.sider.del.button1") }}</button>
+                                        <button class="btn exit" @click="delChat(items.uuid)">
+                                            {{ $t("client.sider.del.button2") }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </dialog>
                         </li>
                     </ul>
                 </li>
@@ -112,6 +128,34 @@ const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("uid");
     navigateTo("/auth");
+};
+
+const delChat = async (uuid) => {
+    const { $fetch } = useNuxtApp();
+
+    try {
+        const results = await $fetch(`/api/chat/delChat`, {
+            method: "POST",
+            body: JSON.stringify({
+                uuid,
+            }),
+        });
+
+        if (results.result) {
+            message.success(t("client.store.chat.success1"));
+            chat.chatList = chat.chatList.map((chatGroup) => {
+                return {
+                    ...chatGroup,
+                    items: chatGroup.items.filter((item) => item.uuid !== uuid),
+                };
+            });
+        } else {
+            message.error(t("client.store.chat.error4"));
+        }
+    } catch (error) {
+        message.error(t("client.store.chat.error4"));
+        console.error(error);
+    }
 };
 
 const hideSider = () => {
@@ -223,30 +267,75 @@ onMounted(() => {
                 }
                 .content {
                     display: flex;
-                    align-items: center;
                     margin: 2px 0;
                     padding: 6px 8px;
                     border-radius: 12px;
                     transition: 0.2s;
                     cursor: pointer;
 
-                    .icon {
-                        flex-shrink: 0;
-                        margin-right: 4px;
-                        font-size: 17px;
+                    .text {
+                        width: 80%;
+                        display: flex;
+                        align-items: center;
+                        flex-grow: 1;
+                        .icon {
+                            flex-shrink: 0;
+                            margin-right: 4px;
+                            font-size: 17px;
+                        }
+                        span {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
                     }
-                    span {
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
+                    .button {
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 1;
+                        color: #ff5861;
+                        border-radius: 12px;
+
+                        .icon {
+                            font-size: 17px;
+                        }
+                    }
+                    .button:hover {
+                        background-color: #ff58602f;
+                    }
+                    .modal {
+                        .modal-box {
+                            .form {
+                                display: flex;
+                                justify-content: flex-end;
+
+                                .btn {
+                                    width: auto;
+                                }
+                                .exit {
+                                    margin-left: 12px;
+                                    color: #ff5861;
+                                    background-color: #ff58602f;
+                                }
+                                .exit:hover {
+                                    border-color: #ff5861;
+                                }
+                            }
+                        }
                     }
                 }
                 .content:hover {
                     background-color: #e5e7eb;
                 }
                 .active {
-                    color: #ffffff;
                     background-color: #2b3440d8;
+
+                    .text {
+                        color: #ffffff;
+                    }
                 }
                 .active:hover {
                     background-color: #2b3440d8;
