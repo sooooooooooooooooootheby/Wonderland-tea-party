@@ -66,6 +66,7 @@ export const useChatStore = defineStore("chat", {
         chatList: [],
         chat: [],
 
+        isChatList: false,
         isAwaitAnswer: false,
         isNewChat: false,
     }),
@@ -94,6 +95,7 @@ export const useChatStore = defineStore("chat", {
 
                 groupedChatList.sort((a, b) => new Date(b.date) - new Date(a.date));
                 this.chatList = groupedChatList;
+                this.isChatList = true;
             } catch (error) {
                 console.log(error);
                 message.error(t("client.store.chat.error1") + error);

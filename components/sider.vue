@@ -10,7 +10,7 @@
             <Icon class="icon" name="mynaui:plus" />{{ $t("client.sider.new") }}
         </button>
         <div class="list">
-            <ul v-if="chat.chatList && chat.chatList.length > 0">
+            <ul v-if="chat.isChatList">
                 <li v-for="(item, index) in chat.chatList" :key="index" class="day">
                     <div class="time">{{ item.date }}</div>
                     <ul>
