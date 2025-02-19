@@ -3,8 +3,8 @@
         <div class="sider" :class="{ hide: isHide }">
             <sider @cutSider="cutSider" />
         </div>
-        <div class="main" v-if="isHide">
-            <div class="header">
+        <div class="main">
+            <div class="header" v-if="isHide">
                 <div class="openSider" @click="cutSider">
                     <Icon class="icon" name="mynaui:menu-solid" />
                 </div>
