@@ -44,6 +44,11 @@
 import { message } from "ant-design-vue";
 import MarkdownIt from "markdown-it";
 import prism from "markdown-it-prism";
+import "prismjs/components/prism-c.min.js"
+import "prismjs/components/prism-sql.min.js"
+import "prismjs/components/prism-python.min.js"
+import "prismjs/components/prism-java.min.js"
+import "prismjs/components/prism-markdown.min.js"
 
 const route = useRoute();
 const { $fetch } = useNuxtApp();
