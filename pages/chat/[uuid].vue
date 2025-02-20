@@ -49,6 +49,7 @@ import "prismjs/components/prism-sql.min.js"
 import "prismjs/components/prism-python.min.js"
 import "prismjs/components/prism-java.min.js"
 import "prismjs/components/prism-markdown.min.js"
+import "prismjs/components/prism-bash.min.js"
 
 const route = useRoute();
 const { $fetch } = useNuxtApp();
