@@ -256,6 +256,8 @@ export const useChatStore = defineStore("chat", {
             } catch (error) {
                 console.error(error);
                 message.error(t("client.store.chat.error3") + error);
+                this.chat[this.chat.length - 1].content = t("client.store.chat.error3") + error;
+                await this.updateChatHistory(uuid, $fetch, t);
             } finally {
                 this.isAwaitAnswer = false;
             }

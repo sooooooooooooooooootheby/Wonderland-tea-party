@@ -110,6 +110,9 @@ export default defineEventHandler(async (event) => {
         stream.write("[DONE]");
         stream.end();
     } catch (error) {
+        await chatDB.saveMessage(uuid, uid, model, "user", content);
+        await chatDB.saveMessage(uuid, uid, model, "assistant", t("server.chat.error") + error);
+
         throw createError({
             statusCode: 500,
             message: t("server.chat.error") + error,

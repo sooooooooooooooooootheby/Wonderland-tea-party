@@ -73,7 +73,7 @@
             "chat": {
                 "error1": "Error getting chat list:",
                 "error2": "Error obtaining chat history:",
-                "error3": "Sending message error:",
+                "error3": "Sending message or Reply error:",
                 "error4": "delete chat error:",
                 "success1": "delete chat successfully",
                 "noInput": "You haven't input! 😿",
