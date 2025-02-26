@@ -9,10 +9,12 @@
                     <div class="bar" v-if="item.role === 'assistant'">
                         <div class="badge badge-accent badge-outline">{{ item.model }}</div>
                     </div>
+                    <div class="loading assistant" v-if="chat.isAwaitAnswer && item.role === 'assistant' && index + 1 === chat.chat.length"></div>
                     <div
-                        class="message prose"
+                        class="prose"
                         :class="{ user: item.role === 'user', assistant: item.role === 'assistant' }"
                         v-html="md.render(item.content)"
+                        v-else
                     ></div>
                     <div
                         class="tool"
@@ -44,12 +46,12 @@
 import { message } from "ant-design-vue";
 import MarkdownIt from "markdown-it";
 import prism from "markdown-it-prism";
-import "prismjs/components/prism-c.min.js"
-import "prismjs/components/prism-sql.min.js"
-import "prismjs/components/prism-python.min.js"
-import "prismjs/components/prism-java.min.js"
-import "prismjs/components/prism-markdown.min.js"
-import "prismjs/components/prism-bash.min.js"
+import "prismjs/components/prism-c.min.js";
+import "prismjs/components/prism-sql.min.js";
+import "prismjs/components/prism-python.min.js";
+import "prismjs/components/prism-java.min.js";
+import "prismjs/components/prism-markdown.min.js";
+import "prismjs/components/prism-bash.min.js";
 
 const route = useRoute();
 const { $fetch } = useNuxtApp();
@@ -162,8 +164,13 @@ onMounted(async () => {
                     margin: 24px 12px;
                 }
             }
+            .loading {
+                margin-left: 52px;
+                padding-left: 0 !important;
+            }
             .assistant {
                 margin-bottom: 24px;
+                padding-left: 52px;
             }
             .tool {
                 margin-bottom: 24px;
@@ -174,7 +181,6 @@ onMounted(async () => {
             }
         }
         .box:has(.assistant) {
-            padding-left: 52px;
             border-bottom: 1px solid #e5e7eb;
         }
         .box:has(.user) {
