@@ -67,6 +67,7 @@ export const useChatStore = defineStore("chat", {
         chat: [],
 
         isChatList: false,
+        isAwaitAnswerStart: false,
         isAwaitAnswer: false,
         isNewChat: false,
     }),
@@ -222,6 +223,7 @@ export const useChatStore = defineStore("chat", {
             }
 
             this.isAwaitAnswer = true;
+            this.isAwaitAnswerStart = true;
 
             try {
                 // 获取用户信息
@@ -248,6 +250,7 @@ export const useChatStore = defineStore("chat", {
                 // 发送请求到后端
                 const response = await this.sendChatRequest({ uuid, uid, type, model, content, isNew, token });
 
+                this.isAwaitAnswerStart = false;
                 // 处理流式数据并更新聊天记录
                 await this.handleChatStream(response);
 

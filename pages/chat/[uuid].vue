@@ -9,7 +9,7 @@
                     <div class="bar" v-if="item.role === 'assistant'">
                         <div class="badge badge-accent badge-outline">{{ item.model }}</div>
                     </div>
-                    <div class="loading assistant" v-if="chat.isAwaitAnswer && item.role === 'assistant' && index + 1 === chat.chat.length"></div>
+                    <div class="loading assistant" v-if="chat.isAwaitAnswerStart && item.role === 'assistant' && index + 1 === chat.chat.length"></div>
                     <div
                         class="prose"
                         :class="{ user: item.role === 'user', assistant: item.role === 'assistant' }"
@@ -109,6 +109,7 @@ onMounted(async () => {
     .messageBox {
         height: 100vh;
         padding: 64px 0;
+        padding-bottom: 80px;
 
         .box {
             width: calc(100% - 30vw);
@@ -127,6 +128,7 @@ onMounted(async () => {
             }
             .bar {
                 margin: 12px 0 8px 0;
+                padding-left: 52px;
             }
             .prose,
             .bar,
