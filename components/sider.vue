@@ -99,6 +99,11 @@
             title="developer tools"
             placement="right"
         >
+            <code>isAwaitAnswer: {{ chat.isAwaitAnswer }}</code>
+            <br />
+            <code>isAwaitAnswerStart: {{ chat.isAwaitAnswerStart }}</code>
+            <br />
+            <br />
             <code>chat list: {{ chat.chatList }}</code>
             <br />
             <br />

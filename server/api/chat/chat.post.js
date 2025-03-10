@@ -78,23 +78,36 @@ export default defineEventHandler(async (event) => {
         cache = uuid;
     }
 
+    messageList = messageList.filter(item => item.role !== 'reasoning');
+
     try {
         let completion = null,
-            fullContent = "";
+            fullContent = "",
+            fullReasoningContent = "";
 
         switch (type) {
             case "deepseek":
                 completion = dsChat(model, messageList);
                 for await (const chunk of completion) {
-                    fullContent += chunk.choices[0].delta.content;
-                    stream.write(`${chunk.choices[0].delta.content}`);
+                    if (chunk.choices[0].delta.reasoning_content) {
+                        fullReasoningContent += chunk.choices[0].delta.reasoning_content;
+                        stream.write(`[REASONING] ${chunk.choices[0].delta.reasoning_content}`);
+                    } else {
+                        fullContent += chunk.choices[0].delta.content;
+                        stream.write(`[CONTENT] ${chunk.choices[0].delta.content}`);
+                    }
                 }
                 break;
             case "qwen":
                 completion = qwenChat(model, messageList);
                 for await (const chunk of completion) {
-                    fullContent += chunk.choices[0].delta.content;
-                    stream.write(`${chunk.choices[0].delta.content}`);
+                    if (chunk.choices[0].delta.reasoning_content) {
+                        fullReasoningContent += chunk.choices[0].delta.reasoning_content;
+                        stream.write(`[REASONING] ${chunk.choices[0].delta.reasoning_content}`);
+                    } else {
+                        fullContent += chunk.choices[0].delta.content;
+                        stream.write(`[CONTENT] ${chunk.choices[0].delta.content}`);
+                    }
                 }
                 break;
             default:
@@ -105,7 +118,11 @@ export default defineEventHandler(async (event) => {
         }
 
         await chatDB.saveMessage(uuid, uid, model, "user", content);
+        await chatDB.saveMessage(uuid, uid, model, "reasoning", fullReasoningContent);
         await chatDB.saveMessage(uuid, uid, model, "assistant", fullContent);
+
+        fullContent = "";
+        fullReasoningContent = "";
 
         stream.write("[DONE]");
         stream.end();

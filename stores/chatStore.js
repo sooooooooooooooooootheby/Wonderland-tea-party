@@ -229,7 +229,7 @@ export const useChatStore = defineStore("chat", {
                 // 获取用户信息
                 const token = localStorage.getItem("token");
                 const { id: uid } = analysisToken(token);
-                const { type, model } = JSON.parse(localStorage.getItem("model"));
+                const { type, model, isRea } = JSON.parse(localStorage.getItem("model"));
 
                 let uuid = route.params.uuid;
                 let isNew = false;
@@ -245,6 +245,9 @@ export const useChatStore = defineStore("chat", {
 
                 // 发送用户消息并准备接收AI消息
                 this.chat.push({ id: null, uid, model, role: "user", content });
+                if (isRea) {
+                    this.chat.push({ id: null, uid, model, role: "reasoning", content: "" });
+                }
                 this.chat.push({ id: null, uid, model, role: "assistant", content: "" });
 
                 // 发送请求到后端
@@ -299,7 +302,19 @@ export const useChatStore = defineStore("chat", {
                 const { value, done: doneReading } = await reader.read();
                 done = doneReading;
                 const chunkText = decoder.decode(value, { stream: true });
-                this.chat[this.chat.length - 1].content += chunkText;
+
+                // 检查 chunkText 是否包含标记
+                if (chunkText.startsWith("[REASONING]")) {
+                    // 提取 reasoning_content 部分
+                    const reasoningContent = chunkText.replace(/\s*\[REASONING\]\s*/g, "").trim();
+                    // 将 reasoning_content 存储或渲染到正确的位置
+                    this.chat[this.chat.length - 2].content += reasoningContent;
+                } else if (chunkText.startsWith("[CONTENT]")) {
+                    // 提取 content 部分
+                    const resContent = chunkText.replace(/\s*\[CONTENT\]\s*/g, "").trim();
+                    // 将 content 存储或渲染到正确的位置
+                    this.chat[this.chat.length - 1].content += resContent;
+                }
             }
         },
         // 更新聊天记录

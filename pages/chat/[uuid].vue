@@ -6,13 +6,24 @@
                     <div class="avatar" v-if="item.role === 'user'">
                         <img src="/logo_small.webp" alt="" />
                     </div>
-                    <div class="bar" v-if="item.role === 'assistant'">
+                    <div class="bar" v-if="item.role === 'reasoning'">
                         <div class="badge badge-accent badge-outline">{{ item.model }}</div>
                     </div>
-                    <div class="loading assistant" v-if="chat.isAwaitAnswerStart && item.role === 'assistant' && index + 1 === chat.chat.length"></div>
+                    <div
+                        class="loading assistant"
+                        v-if="
+                            chat.isAwaitAnswerStart &&
+                            (item.role === 'assistant' || item.role == 'reasoning') &&
+                            index + 1 === chat.chat.length
+                        "
+                    ></div>
                     <div
                         class="prose"
-                        :class="{ user: item.role === 'user', assistant: item.role === 'assistant' }"
+                        :class="{
+                            user: item.role === 'user',
+                            reasoning: item.role === 'reasoning',
+                            assistant: item.role === 'assistant',
+                        }"
                         v-html="md.render(item.content)"
                         v-else
                     ></div>
@@ -114,6 +125,7 @@ onMounted(async () => {
         .box {
             width: calc(100% - 30vw);
             margin: 0 auto;
+            padding-left: 52px;
             display: flex;
             flex-direction: column;
 
@@ -121,6 +133,7 @@ onMounted(async () => {
                 width: 32px;
                 height: 32px;
                 margin: 0 12px;
+                flex-shrink: 0;
 
                 img {
                     border-radius: 999px;
@@ -128,7 +141,11 @@ onMounted(async () => {
             }
             .bar {
                 margin: 12px 0 8px 0;
-                padding-left: 52px;
+            }
+            .reasoning {
+                padding-left: 12px;
+                opacity: 0.7;
+                border-left: 2px solid;
             }
             .prose,
             .bar,
@@ -167,12 +184,10 @@ onMounted(async () => {
                 }
             }
             .loading {
-                margin-left: 52px;
                 padding-left: 0 !important;
             }
             .assistant {
                 margin-bottom: 24px;
-                padding-left: 52px;
             }
             .tool {
                 margin-bottom: 24px;
@@ -190,6 +205,7 @@ onMounted(async () => {
         }
         .box:has(.avatar) {
             flex-direction: row;
+            padding-left: 0;
         }
     }
     .down {
