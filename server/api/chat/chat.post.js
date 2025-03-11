@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
             case "deepseek":
                 completion = dsChat(model, messageList);
                 for await (const chunk of completion) {
-                    if (chunk.choices[0].delta.reasoning_content) {
+                    if (chunk.choices[0].delta.reasoning_content !== null) {
                         fullReasoningContent += chunk.choices[0].delta.reasoning_content;
                         stream.write(`[REASONING] ${chunk.choices[0].delta.reasoning_content}`);
                     } else {
@@ -101,7 +101,7 @@ export default defineEventHandler(async (event) => {
             case "qwen":
                 completion = qwenChat(model, messageList);
                 for await (const chunk of completion) {
-                    if (chunk.choices[0].delta.reasoning_content) {
+                    if (chunk.choices[0].delta.reasoning_content !== null) {
                         fullReasoningContent += chunk.choices[0].delta.reasoning_content;
                         stream.write(`[REASONING] ${chunk.choices[0].delta.reasoning_content}`);
                     } else {
