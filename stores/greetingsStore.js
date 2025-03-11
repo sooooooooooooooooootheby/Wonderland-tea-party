@@ -126,7 +126,6 @@ export const useGreetingsStore = defineStore("greetings", {
                 },
             },
         ],
-        neko: ["😺", "😸", "😻", "😽"],
         at: "",
     }),
     actions: {
@@ -174,9 +173,6 @@ export const useGreetingsStore = defineStore("greetings", {
                 ...selected,
                 message: selected.message[lang],
             };
-        },
-        getNeko() {
-            return this.neko[Math.floor(Math.random() * this.neko.length)];
         },
     },
 });

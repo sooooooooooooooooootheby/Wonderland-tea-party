@@ -1,7 +1,9 @@
 <template>
     <div class="chatMain">
         <div>
-            <h1 class="neko">{{ neko }}</h1>
+            <div class="neko">
+                <randomNeko />
+            </div>
             <p class="model">{{ model.model.model }}</p>
             <p class="greetings">{{ greetings.at }}</p>
             <div class="suggested">
@@ -42,7 +44,6 @@ const greetings = useGreetingsStore();
 const model = useModelStore();
 const { t } = useI18n();
 
-const neko = ref("");
 const list = ref(null);
 const showMessage = () => {
     message.info(t("client.chat.suggested.message"));
@@ -58,7 +59,6 @@ const handleWheel = (e) => {
 onMounted(() => {
     list.value?.addEventListener("wheel", handleWheel, { passive: false });
     greetings.handleGreetings();
-    neko.value = greetings.getNeko;
 });
 onUnmounted(() => {
     list.value?.removeEventListener("wheel", handleWheel);
@@ -85,9 +85,9 @@ onUnmounted(() => {
     align-items: center;
 
     .neko {
+        width: 64px;
+        height: 64px;
         margin-top: 256px;
-        margin-left: -18px;
-        font-size: 4rem;
     }
     .model {
         font-size: 2rem;
