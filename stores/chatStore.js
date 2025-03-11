@@ -7,7 +7,7 @@ const handleDate = (date, t) => {
     const now = new Date();
     const input = new Date(date);
 
-    const day = Math.floor((now.getTime() - input.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const day = Math.floor((now.getTime() - input.getTime()) / (1000 * 60 * 60 * 24));
 
     if (day === 0) {
         return `${t("client.sider.time.today")}`;
