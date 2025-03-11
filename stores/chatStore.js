@@ -3,49 +3,19 @@ import { useI18n } from "vue-i18n";
 import { message } from "ant-design-vue";
 import { v4 as uuidv4 } from "uuid";
 
-const handleDate = (type = "date", date = Date.now(), t) => {
-    let res = null;
+const handleDate = (date, t) => {
+    const now = new Date();
+    const input = new Date(date);
 
-    if (Math.floor(date / 10000000000) === 0) {
-        date *= 1000;
+    const day = Math.floor((now.getTime() - input.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    if (day === 0) {
+        return `${t("client.sider.time.today")}`;
+    } else if (day === 1) {
+        return `${t("client.sider.time.yesterday")}`;
+    } else {
+        return `${day} ${t("client.sider.time.day")}${t("client.sider.time.ago")}`;
     }
-
-    switch (type) {
-        case "date":
-            const time = new Date(date);
-            const Y = time.getFullYear();
-            const M = time.getMonth() + 1 < 10 ? "0" + (time.getMonth() + 1) : time.getMonth() + 1;
-            const D = String(time.getDate()).padStart(2, "0");
-            const h = String(time.getHours()).padStart(2, "0");
-            const m = String(time.getMinutes()).padStart(2, "0");
-            const s = String(time.getSeconds()).padStart(2, "0");
-
-            res = `${Y}-${M}-${D} ${h}:${m}:${s}`;
-            break;
-        case "text":
-            const now = new Date();
-            const inputDate = new Date(date);
-            const diffTime = now - inputDate;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays === 0) {
-                res = t("client.sider.time.today");
-            } else if (diffDays === 1) {
-                res = t("client.sider.time.yesterday");
-            } else if (diffDays === -1) {
-                res = t("client.sider.time.tomorrow");
-            } else {
-                res = ` ${Math.abs(diffDays)}${t("client.sider.time.day")}${
-                    diffDays > 0 ? t("client.sider.time.ago") : t("client.sider.time.later")
-                }`;
-            }
-            break;
-        default:
-            console.error(`ERROR: The type = "${type}" parameter is incorrect`);
-            break;
-    }
-
-    return res;
 };
 
 const analysisToken = (token) => {
@@ -80,7 +50,7 @@ export const useChatStore = defineStore("chat", {
                 const response = await $fetch(`/api/chat/getList?uid=${localStorage.getItem("uid")}`);
                 let list = response.results;
                 for (let i = 0; i < response.results.length; i++) {
-                    list[i].data = handleDate("text", response.results[i].data, t);
+                    list[i].data = handleDate(response.results[i].data, t);
                 }
 
                 const groupedChatList = Object.values(
