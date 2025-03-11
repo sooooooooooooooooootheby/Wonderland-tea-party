@@ -1,6 +1,6 @@
 <template>
-    <div class="room">
-        <v-virtual-scroll :items="chat.chat" class="messageBox" v-if="chat.chat && chat.chat.length > 0">
+    <div class="room" @wheel="handleWheel">
+        <v-virtual-scroll :items="chat.chat" class="messageBox" ref="messageBox" v-if="chat.chat && chat.chat.length > 0">
             <template v-slot:default="{ item, index }">
                 <div class="box">
                     <div class="avatar" v-if="item.role === 'user'">
@@ -80,10 +80,39 @@ const scrollToBottom = () => {
     if (messageBox) {
         messageBox.scrollTo({
             top: messageBox.scrollHeight,
-            behavior: "smooth"
+            behavior: "smooth",
         });
     }
 };
+
+let stopScroll;
+
+const startScroll = () => {
+    stopScroll = watch(
+        () => chat.chat,
+        (newVal, oldVal) => {
+            scrollToBottom();
+        },
+        { deep: true }
+    );
+};
+
+const handleWheel = () => {
+    if (chat.isAwaitAnswer) {
+        stopScroll();
+    }
+};
+
+watch(
+    () => chat.isAwaitAnswer,
+    (newVal) => {
+        if (!newVal) {
+            startScroll();
+        }
+    }
+);
+
+startScroll();
 
 onMounted(async () => {
     if (!chat.isNewChat) {
