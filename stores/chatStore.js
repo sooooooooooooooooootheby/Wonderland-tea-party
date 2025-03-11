@@ -273,17 +273,32 @@ export const useChatStore = defineStore("chat", {
                 done = doneReading;
                 const chunkText = decoder.decode(value, { stream: true });
 
-                // 检查 chunkText 是否包含标记
                 if (chunkText.startsWith("[REASONING]")) {
-                    // 提取 reasoning_content 部分
                     const reasoningContent = chunkText.replace(/\s*\[REASONING\]\s*/g, "").trim();
-                    // 将 reasoning_content 存储或渲染到正确的位置
-                    this.chat[this.chat.length - 2].content += reasoningContent;
+                    const index = this.chat.reduce((acc, item, index) => {
+                        if (item.role === "reasoning") {
+                            return index;
+                        }
+                        return acc;
+                    }, -1);
+                    if (index !== -1) {
+                        this.chat[index].content += reasoningContent;
+                    } else {
+                        this.chat[this.chat.length - 2].content += reasoningContent;
+                    }
                 } else if (chunkText.startsWith("[CONTENT]")) {
-                    // 提取 content 部分
                     const resContent = chunkText.replace(/\s*\[CONTENT\]\s*/g, "").trim();
-                    // 将 content 存储或渲染到正确的位置
-                    this.chat[this.chat.length - 1].content += resContent;
+                    const index = this.chat.reduce((acc, item, index) => {
+                        if (item.role === "assistant") {
+                            return index;
+                        }
+                        return acc;
+                    }, -1);
+                    if (index !== -1) {
+                        this.chat[index].content += resContent;
+                    } else {
+                        this.chat[this.chat.length - 2].content += resContent;
+                    }
                 }
             }
         },
