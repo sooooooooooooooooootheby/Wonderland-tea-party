@@ -10,7 +10,7 @@
 
 ## 部署
 
-目前因为一些玄学原因还不支持部署.
+见[部署文档](https://github.com/sooooooooooooooooootheby/Wonderland-tea-party/blob/main/docs/deploy_zh.md)
 
 ## 截图
 

@@ -11,7 +11,7 @@
  Target Server Version : 80032 (8.0.32)
  File Encoding         : 65001
 
- Date: 11/03/2025 17:20:58
+ Date: 11/03/2025 21:59:25
 */
 
 SET NAMES utf8mb4;
@@ -30,5 +30,12 @@ CREATE TABLE `user` (
   `comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+BEGIN;
+INSERT INTO `user` (`id`, `username`, `password`, `role`, `state`, `comment`) VALUES (1, 'test', 'k3chObS+8RnjfZyTl8ngy0hIUXUJv4yoZDKj9LKK940=', 'admin', 'active', NULL);
+COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
