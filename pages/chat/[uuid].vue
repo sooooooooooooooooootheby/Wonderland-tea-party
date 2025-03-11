@@ -75,10 +75,21 @@ const copy = (content) => {
     message.success(t("client.chat.chat.copy"));
 };
 
+const scrollToBottom = () => {
+    const messageBox = document.querySelector(".messageBox");
+    if (messageBox) {
+        messageBox.scrollTo({
+            top: messageBox.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+};
+
 onMounted(async () => {
     if (!chat.isNewChat) {
         await chat.getChat(route.params.uuid);
     }
+    scrollToBottom();
 });
 </script>
 

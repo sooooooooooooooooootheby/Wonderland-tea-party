@@ -20,7 +20,7 @@
                             class="content"
                             :class="{ active: items.uuid === route.params.uuid }"
                         >
-                            <div class="text" @click="navigateTo(`/chat/${items.uuid}`)">
+                            <div class="text" @click="handleTo(items.uuid)">
                                 <Icon class="icon" name="mynaui:message-dots" />
                                 <span>{{ items.content }}</span>
                             </div>
@@ -133,6 +133,11 @@ const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("uid");
     navigateTo("/auth");
+};
+
+const handleTo = (uuid) => {
+    chat.chat = [];
+    navigateTo(`/chat/${uuid}`);
 };
 
 const delChat = async (uuid) => {
