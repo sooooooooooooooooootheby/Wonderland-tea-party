@@ -4,7 +4,12 @@
             <div class="dropdown dropdown-top">
                 <img tabindex="0" role="button" :src="modelImage" alt="model" />
                 <ul tabindex="0" class="dropdown-content bg-base-100 rounded-box z-[1] shadow">
-                    <li v-for="item in model.modelList" :key="item.id" :class="{ active: item.id === model.model.id }" @click="model.selectModel(item)">
+                    <li
+                        v-for="item in model.modelList"
+                        :key="item.id"
+                        :class="{ active: item.id === model.model.id }"
+                        @click="model.selectModel(item)"
+                    >
                         <div class="top">
                             <img :src="`/model/${item.icon}.webp`" alt="model" />
                             <div class="text">
@@ -17,18 +22,19 @@
                 </ul>
             </div>
         </div>
-        <div class="inputBox">
-            <input
-                type="text"
-                v-model="input"
-                :placeholder="$t('client.panel.input')"
-                @keydown.enter="send"
-                class="input input-ghost w-full max-w-xs focus:outline-none"
-            />
-        </div>
-        <div class="button" @click="send">
-            <Icon class="icon" name="mynaui:arrow-up" />
-        </div>
+        <form @submit.prevent="send">
+            <div class="inputBox">
+                <input
+                    type="text"
+                    v-model="input"
+                    :placeholder="$t('client.panel.input')"
+                    class="input input-ghost w-full max-w-xs focus:outline-none"
+                />
+            </div>
+            <div class="button" @click="send">
+                <Icon class="icon" name="mynaui:arrow-up" />
+            </div>
+        </form>
     </div>
 </template>
 
@@ -43,7 +49,7 @@ const input = ref("");
 const send = () => {
     chat.send(input.value, t);
     input.value = "";
-}
+};
 
 watch(
     () => model.model,
@@ -145,36 +151,43 @@ onMounted(() => {
             }
         }
     }
-    .inputBox {
-        height: 42px;
-        flex-grow: 1;
-
-        .input {
-            max-width: 100%;
-            width: 100%;
-            height: 100%;
-            border-radius: 0;
-            border: none;
-            background-color: transparent;
-        }
-    }
-    .button {
-        width: 32px;
-        height: 32px;
+    form {
+        width: 100%;
         display: flex;
         align-items: center;
-        justify-content: center;
-        border-radius: 999px;
-        transition: 0.2s;
-        cursor: pointer;
+        justify-content: space-between;
 
-        .icon {
-            font-size: 1.2rem;
-            color: #aab0bb;
+        .inputBox {
+            height: 42px;
+            flex-grow: 1;
+
+            .input {
+                max-width: 100%;
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                border: none;
+                background-color: transparent;
+            }
         }
-    }
-    .button:hover {
-        background-color: #e5e7eb;
+        .button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            transition: 0.2s;
+            cursor: pointer;
+
+            .icon {
+                font-size: 1.2rem;
+                color: #aab0bb;
+            }
+        }
+        .button:hover {
+            background-color: #e5e7eb;
+        }
     }
 }
 

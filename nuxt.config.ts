@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     ],
 
     build: {
-        transpile: ["vuetify", 'vue'],
+        transpile: ["vuetify", "vue"],
     },
 
     vite: {
