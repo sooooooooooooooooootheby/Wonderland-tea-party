@@ -105,6 +105,9 @@ export default defineEventHandler(async (event) => {
                 });
         }
 
+        // 继续对话时添加assistant消息
+        messageList.push({ role: "assistant", content: fullContent });
+
         await chatDB.saveMessage(uuid, uid, model, "user", content);
         await chatDB.saveMessage(uuid, uid, model, "reasoning", fullReasoningContent);
         await chatDB.saveMessage(uuid, uid, model, "assistant", fullContent);
