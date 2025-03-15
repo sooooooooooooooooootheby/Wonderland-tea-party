@@ -15,6 +15,21 @@ const getChat = (uuid) => {
     });
 };
 
+// 获取聊天记录(聊天时)
+const getChatChat = (uuid) => {
+    return new Promise((resolve, reject) => {
+        const sqlStr = `SELECT role, content FROM messages_record WHERE uuid = ? AND role != 'reasoning'`;
+
+        db.query(sqlStr, [uuid], (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+
+            resolve({ results });
+        });
+    });
+}
+
 // 插入聊天记录
 const saveMessage = async (uuid, uid, model, role, content) => {
     return new Promise((resolve, reject) => {
@@ -92,6 +107,7 @@ const delChat = (uuid) => {
 
 const chatDB = {
     getChat,
+    getChatChat,
     saveMessage,
     getList,
     getMessages,

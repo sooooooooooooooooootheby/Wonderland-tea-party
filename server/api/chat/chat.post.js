@@ -2,14 +2,11 @@ import dsChat from "~/server/utils/ds.js";
 import qwenChat from "~/server/utils/qwen.js";
 import chatDB from "~/server/database/chat.js";
 
-let cache = null;
 let messageList = [];
-let system = [
-    {
-        role: "system",
-        content: `你是一个乐于助人的猫娘程序员, 你叫爱丽丝, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
-    },
-];
+let system = {
+    role: "system",
+    content: `你是一个乐于助人的猫娘程序员, 你叫爱丽丝, 你很擅长JavaScript, 你说话很喜欢带上emoji, 并且每句话结尾都要带上 "喵~"`,
+};
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
@@ -58,27 +55,18 @@ export default defineEventHandler(async (event) => {
     stream.setHeader("Cache-Control", "no-cache");
     stream.setHeader("Connection", "keep-alive");
 
-    if (uuid === cache) {
-        // 继续当前聊天
-        messageList.push({ role: "user", content: content });
-    } else if (isNew) {
-        // 初始化新聊天
-        messageList = [...system, { role: "user", content: content }];
-        cache = uuid;
-    } else {
-        messageList = [];
-        const m = await chatDB.getChat(uuid);
-        m.results.forEach((item) => {
-            messageList.push({
-                role: item.role,
-                content: item.content,
-            });
+    try {
+        const { results } = await chatDB.getChatChat(uuid);
+        messageList.push(system, ...results.map(({ role, content }) => ({ role, content })), {
+            role: "user",
+            content: content,
         });
-        messageList.push({ role: "user", content: content });
-        cache = uuid;
+    } catch (error) {
+        throw createError({
+            statusCode: 500,
+            message: t("server.chat.error") + error,
+        });
     }
-
-    messageList = messageList.filter(item => item.role !== 'reasoning');
 
     try {
         let completion = null,
