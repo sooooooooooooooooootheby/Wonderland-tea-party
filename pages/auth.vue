@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import encryption from "s22y-utils";
+import b64_hmac_sha256 from '~/utils/sha256.js';
 
 const config = useRuntimeConfig();
 const { t, locale, setLocale } = useI18n();
@@ -102,7 +102,7 @@ const handleSubmit = async () => {
     try {
         isLoading.value = true;
 
-        const hpassword = encryption.passwordHash(password.value, config.public.tokenKeyClient);
+        const hpassword = b64_hmac_sha256(config.public.tokenKeyClient, password.value);
 
         const response = await $fetch("/api/user/login", {
             method: "POST",
@@ -186,7 +186,7 @@ const handleSubmit = async () => {
                 position: absolute;
                 bottom: -3px;
                 right: -60px;
-                background-color: #1F2937;
+                background-color: #1f2937;
                 color: #ffffff;
 
                 .icon {

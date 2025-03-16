@@ -1,6 +1,6 @@
 import userDB from "~/server/database/user.js";
 import jwt from "jsonwebtoken";
-import encryption from "s22y-utils";
+import b64_hmac_sha256 from '~/utils/sha256.js';
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const config = useRuntimeConfig();
-    let saltPassword = encryption.passwordHash(password, config.tokenKeyServer);
+    let saltPassword = b64_hmac_sha256(config.tokenKeyServer, password);
 
     try {
         const results = await userDB.login(username, saltPassword);
