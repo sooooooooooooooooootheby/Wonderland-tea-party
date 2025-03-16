@@ -159,6 +159,9 @@ const delChat = async (uuid) => {
                     items: chatGroup.items.filter((item) => item.uuid !== uuid),
                 };
             });
+
+            chat.chat = [];
+            await navigateTo(`/chat`);
         } else {
             message.error(t("client.store.chat.error4"));
         }
