@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { useI18n } from "vue-i18n";
 import { message } from "ant-design-vue";
-import { v4 as uuidv4 } from "uuid";
 
 const handleDate = (date, t) => {
     const now = new Date();
@@ -137,6 +136,7 @@ export const useChatStore = defineStore("chat", {
                 await this.updateChatHistory(uuid, $fetch, t);
             } finally {
                 this.isAwaitAnswer = false;
+                this.isNewChat = false;
             }
         },
         // 发送聊天请求

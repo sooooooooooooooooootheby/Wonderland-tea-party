@@ -41,13 +41,22 @@
 <script setup>
 const model = useModelStore();
 const chat = useChatStore();
+const route = useRoute();
+import { v4 as uuidv4 } from "uuid";
 const { t } = useI18n();
 
 const modelImage = ref("");
 const input = ref("");
 
-const send = () => {
-    chat.send(input.value, t);
+const send = async () => {
+    let uuid = route.params.uuid;
+    if (!uuid) {
+        uuid = uuidv4();
+        chat.isNewChat = true;
+        await navigateTo(`/chat/${uuid}`)
+    }
+
+    chat.send(input.value, uuid, t);
     input.value = "";
 };
 
