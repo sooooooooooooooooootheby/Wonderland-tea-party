@@ -83,11 +83,11 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 
     .neko {
         width: 64px;
         height: 64px;
-        margin-top: 256px;
     }
     .model {
         font-size: 2rem;
