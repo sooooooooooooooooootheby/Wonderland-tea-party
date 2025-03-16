@@ -115,20 +115,19 @@ export const useChatStore = defineStore("chat", {
                 // 发送用户消息并准备接收AI消息
                 this.chat.push({ id: null, uid, model, role: "user", content });
                 if (isRea) {
-                    console.log(1);
                     this.chat.push({ id: null, uid, model, role: "reasoning", content: "" });
                 }
                 this.chat.push({ id: null, uid, model, role: "assistant", content: "" });
 
                 // 发送请求到后端
-                const response = await this.sendChatRequest({ uuid, uid, type, model, content, token });
+                const response = await this.sendChatRequest({ uuid, uid, type, model, content, token, isRea });
 
                 this.isAwaitAnswerStart = false;
                 // 处理流式数据并更新聊天记录
                 await this.handleChatStream(response);
 
                 // 获取最新的聊天记录
-                // await this.updateChatHistory(uuid, $fetch, t);
+                await this.updateChatHistory(uuid, $fetch, t);
             } catch (error) {
                 console.error(error);
                 message.error(t("client.store.chat.error3") + error);
@@ -140,7 +139,7 @@ export const useChatStore = defineStore("chat", {
             }
         },
         // 发送聊天请求
-        async sendChatRequest({ uuid, uid, type, model, content, token }) {
+        async sendChatRequest({ uuid, uid, type, model, content, token, isRea }) {
             const controller = new AbortController();
             const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), 60000));
 
@@ -152,7 +151,7 @@ export const useChatStore = defineStore("chat", {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${token}`,
                         },
-                        body: JSON.stringify({ uuid, uid, type, model, content }),
+                        body: JSON.stringify({ uuid, uid, type, model, content, isRea }),
                         signal: controller.signal,
                     }),
                     timeoutPromise,

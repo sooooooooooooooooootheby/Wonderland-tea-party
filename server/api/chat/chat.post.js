@@ -82,14 +82,15 @@ export default defineEventHandler(async (event) => {
         }
 
         for await (const chunk of completion) {
-            const { content, reasoning_content } = chunk.choices[0].delta;
+            const reasoning_content = chunk.choices[0].delta.reasoning_content;
+            const aicontent = chunk.choices[0].delta.content;
 
-            if (content === null) {
+            if (aicontent === null) {
                 fullReasoningContent += reasoning_content;
                 stream.write(`[REASONING]${reasoning_content}`);
             } else {
-                fullContent += fullContent;
-                stream.write(`[CONTENT]${content}`);
+                fullContent += aicontent;
+                stream.write(`[CONTENT]${aicontent}`);
             }
         }
 
