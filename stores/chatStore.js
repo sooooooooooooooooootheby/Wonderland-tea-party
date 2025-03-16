@@ -85,103 +85,8 @@ export const useChatStore = defineStore("chat", {
                 message.error(t("client.store.chat.error2") + error);
             }
         },
-        /*
-         * 这是答辩, 用 ai 优化了一下, 我留着是怕删了原来的代码, 看不懂 ai 写的了
-         */
-        // async send(content, t) {
-        //     const route = useRoute();
-        //     const router = useRouter();
-        //     const { $fetch } = useNuxtApp();
-
-        //     if (!content) {
-        //         return message.error(t("client.store.chat.noInput"));
-        //     }
-        //     if (this.isAwaitAnswer) {
-        //         return message.warning(t("client.store.chat.isAwait"));
-        //     }
-
-        //     this.isAwaitAnswer = true;
-
-        //     try {
-        //         const uid = analysisToken(localStorage.getItem("token")).id;
-        //         const { type, model } = JSON.parse(localStorage.getItem("model"));
-
-        //         let uuid = route.params.uuid;
-        //         let isNew = false;
-        //         if (!uuid) {
-        //             this.isNewChat = true;
-        //             uuid = uuidv4();
-        //             router.push(`/chat/${uuid}`);
-        //             this.listAddItem(uuid, content, t);
-        //             isNew = true;
-        //         }
-
-        //         this.chat.push({
-        //             id: null,
-        //             uid: uid,
-        //             model: model,
-        //             role: "user",
-        //             content: content,
-        //         });
-        //         this.chat.push({
-        //             id: null,
-        //             uid: uid,
-        //             model: model,
-        //             role: "assistant",
-        //             content: "",
-        //         });
-
-        //         const token = localStorage.getItem("token");
-        //         const controller = new AbortController();
-        //         const timeoutId = setTimeout(() => controller.abort(), 60000);
-        //         const response = await fetch(`/api/chat/chat`, {
-        //             method: "POST",
-        //             headers: {
-        //                 "Content-Type": "application/json",
-        //                 Authorization: `Bearer ${token}`,
-        //             },
-        //             body: JSON.stringify({
-        //                 uuid: uuid,
-        //                 uid: uid,
-        //                 type: type,
-        //                 model: model,
-        //                 content: content,
-        //                 isNew: isNew,
-        //             }),
-        //             signal: controller.signal,
-        //         });
-
-        //         clearTimeout(timeoutId);
-
-        //         const reader = response.body.getReader();
-        //         const decoder = new TextDecoder();
-        //         let done = false;
-
-        //         while (!done) {
-        //             const { value, done: doneReading } = await reader.read();
-        //             done = doneReading;
-        //             let chunkText = decoder.decode(value, { stream: true });
-        //             this.chat[this.chat.length - 1].content += chunkText;
-        //         }
-
-        //         try {
-        //             const response = await $fetch(`/api/chat/getChat?uuid=${uuid}`);
-
-        //             this.chat = response.results.results;
-        //         } catch (error) {
-        //             console.error(error);
-        //             message.error(t("client.store.chat.error2") + error);
-        //         }
-        //     } catch (error) {
-        //         console.error(error);
-        //         message.error(t("client.store.chat.error3") + error);
-        //     } finally {
-        //         this.isAwaitAnswer = false;
-        //     }
-        // },
         async send(content, t) {
             const route = useRoute();
-            const router = useRouter();
             const { $fetch } = useNuxtApp();
 
             // 输入验证
@@ -199,36 +104,32 @@ export const useChatStore = defineStore("chat", {
                 // 获取用户信息
                 const token = localStorage.getItem("token");
                 const { id: uid } = analysisToken(token);
-                const { type, model, isRea } = JSON.parse(localStorage.getItem("model"));
-
-                let uuid = route.params.uuid;
-                let isNew = false;
-
-                // 如果没有uuid，表示是新聊天
-                if (!uuid) {
-                    this.isNewChat = true;
-                    uuid = uuidv4();
-                    router.push(`/chat/${uuid}`);
-                    this.listAddItem(uuid, content, t);
-                    isNew = true;
+                const { type, model } = JSON.parse(localStorage.getItem("model"));
+                let { isRea } = JSON.parse(localStorage.getItem("model"));
+                if (isRea === "true") {
+                    isRea = true;
+                } else {
+                    isRea = false;
                 }
+                const uuid = route.params.uuid;
 
                 // 发送用户消息并准备接收AI消息
                 this.chat.push({ id: null, uid, model, role: "user", content });
                 if (isRea) {
+                    console.log(1);
                     this.chat.push({ id: null, uid, model, role: "reasoning", content: "" });
                 }
                 this.chat.push({ id: null, uid, model, role: "assistant", content: "" });
 
                 // 发送请求到后端
-                const response = await this.sendChatRequest({ uuid, uid, type, model, content, isNew, token });
+                const response = await this.sendChatRequest({ uuid, uid, type, model, content, token });
 
                 this.isAwaitAnswerStart = false;
                 // 处理流式数据并更新聊天记录
                 await this.handleChatStream(response);
 
                 // 获取最新的聊天记录
-                await this.updateChatHistory(uuid, $fetch, t);
+                // await this.updateChatHistory(uuid, $fetch, t);
             } catch (error) {
                 console.error(error);
                 message.error(t("client.store.chat.error3") + error);
@@ -239,7 +140,7 @@ export const useChatStore = defineStore("chat", {
             }
         },
         // 发送聊天请求
-        async sendChatRequest({ uuid, uid, type, model, content, isNew, token }) {
+        async sendChatRequest({ uuid, uid, type, model, content, token }) {
             const controller = new AbortController();
             const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), 60000));
 
@@ -251,7 +152,7 @@ export const useChatStore = defineStore("chat", {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${token}`,
                         },
-                        body: JSON.stringify({ uuid, uid, type, model, content, isNew }),
+                        body: JSON.stringify({ uuid, uid, type, model, content }),
                         signal: controller.signal,
                     }),
                     timeoutPromise,
@@ -266,40 +167,74 @@ export const useChatStore = defineStore("chat", {
         async handleChatStream(response) {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
+            let buffer = ""; // 缓存接收到的数据
             let done = false;
 
             while (!done) {
                 const { value, done: doneReading } = await reader.read();
                 done = doneReading;
-                const chunkText = decoder.decode(value, { stream: true });
 
-                if (chunkText.startsWith("[REASONING]")) {
-                    const reasoningContent = chunkText.replace(/\s*\[REASONING\]\s*/g, "").trim();
-                    const index = this.chat.reduce((acc, item, index) => {
-                        if (item.role === "reasoning") {
-                            return index;
-                        }
-                        return acc;
-                    }, -1);
-                    if (index !== -1) {
-                        this.chat[index].content += reasoningContent;
-                    } else {
+                // 解码数据并追加到缓冲区
+                if (value) {
+                    buffer += decoder.decode(value, { stream: true });
+                }
+
+                // 处理缓冲区中的数据
+                let index;
+                while (
+                    (index = buffer.indexOf("[CONTENT]")) >= 0 ||
+                    (index = buffer.indexOf("[REASONING]")) >= 0 ||
+                    (index = buffer.indexOf("[DONE]")) >= 0
+                ) {
+                    // 找到第一个标记的位置
+                    let marker;
+                    if (buffer.startsWith("[CONTENT]")) {
+                        marker = "[CONTENT]";
+                    } else if (buffer.startsWith("[REASONING]")) {
+                        marker = "[REASONING]";
+                    } else if (buffer.startsWith("[DONE]")) {
+                        marker = "[DONE]";
+                    }
+
+                    // 提取标记之前的数据（如果有）
+                    if (index > 0) {
+                        const extraData = buffer.slice(0, index);
+                        console.warn("未标记的数据:", extraData);
+                    }
+
+                    // 提取标记之后的数据
+                    buffer = buffer.slice(index + marker.length);
+
+                    // 如果是 [DONE] 标记，直接结束
+                    if (marker === "[DONE]") {
+                        break;
+                    }
+
+                    // 找到下一个标记的位置
+                    const nextIndex = Math.min(
+                        buffer.indexOf("[CONTENT]") >= 0 ? buffer.indexOf("[CONTENT]") : Infinity,
+                        buffer.indexOf("[REASONING]") >= 0 ? buffer.indexOf("[REASONING]") : Infinity,
+                        buffer.indexOf("[DONE]") >= 0 ? buffer.indexOf("[DONE]") : Infinity
+                    );
+
+                    // 提取当前标记对应的数据
+                    const data = nextIndex >= 0 ? buffer.slice(0, nextIndex) : buffer;
+                    buffer = nextIndex >= 0 ? buffer.slice(nextIndex) : "";
+
+                    // 根据标记处理数据
+                    if (marker === "[CONTENT]") {
+                        const content = data.trim();
+                        this.chat[this.chat.length - 1].content += content;
+                    } else if (marker === "[REASONING]") {
+                        const reasoningContent = data.trim();
                         this.chat[this.chat.length - 2].content += reasoningContent;
                     }
-                } else if (chunkText.startsWith("[CONTENT]")) {
-                    const resContent = chunkText.replace(/\s*\[CONTENT\]\s*/g, "").trim();
-                    const index = this.chat.reduce((acc, item, index) => {
-                        if (item.role === "assistant") {
-                            return index;
-                        }
-                        return acc;
-                    }, -1);
-                    if (index !== -1) {
-                        this.chat[index].content += resContent;
-                    } else {
-                        this.chat[this.chat.length - 2].content += resContent;
-                    }
                 }
+            }
+
+            // 处理缓冲区中剩余的数据
+            if (buffer.length > 0) {
+                console.warn("未标记的剩余数据:", buffer);
             }
         },
         // 更新聊天记录

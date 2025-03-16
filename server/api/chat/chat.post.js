@@ -10,7 +10,7 @@ let system = {
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
-    const { uuid, uid, type, model, content, isNew } = body;
+    const { uuid, uid, type, model, content, isRea } = body;
     const t = await useTranslation(event);
 
     if (!uuid) {
@@ -43,12 +43,6 @@ export default defineEventHandler(async (event) => {
             message: t("server.chat.content"),
         });
     }
-    if (isNew === undefined) {
-        throw createError({
-            statusCode: 401,
-            message: t("server.chat.isNew"),
-        });
-    }
 
     const stream = event.node.res;
     stream.setHeader("Content-Type", "text/event-stream");
@@ -76,27 +70,9 @@ export default defineEventHandler(async (event) => {
         switch (type) {
             case "deepseek":
                 completion = dsChat(model, messageList);
-                for await (const chunk of completion) {
-                    if (chunk.choices[0].delta.reasoning_content !== null) {
-                        fullReasoningContent += chunk.choices[0].delta.reasoning_content;
-                        stream.write(`[REASONING] ${chunk.choices[0].delta.reasoning_content}`);
-                    } else {
-                        fullContent += chunk.choices[0].delta.content;
-                        stream.write(`[CONTENT] ${chunk.choices[0].delta.content}`);
-                    }
-                }
                 break;
             case "qwen":
                 completion = qwenChat(model, messageList);
-                for await (const chunk of completion) {
-                    if (chunk.choices[0].delta.reasoning_content !== null) {
-                        fullReasoningContent += chunk.choices[0].delta.reasoning_content;
-                        stream.write(`[REASONING] ${chunk.choices[0].delta.reasoning_content}`);
-                    } else {
-                        fullContent += chunk.choices[0].delta.content;
-                        stream.write(`[CONTENT] ${chunk.choices[0].delta.content}`);
-                    }
-                }
                 break;
             default:
                 throw createError({
@@ -105,11 +81,22 @@ export default defineEventHandler(async (event) => {
                 });
         }
 
-        // 继续对话时添加assistant消息
-        messageList.push({ role: "assistant", content: fullContent });
+        for await (const chunk of completion) {
+            const { content, reasoning_content } = chunk.choices[0].delta;
+
+            if (content === null) {
+                fullReasoningContent += reasoning_content;
+                stream.write(`[REASONING]${reasoning_content}`);
+            } else {
+                fullContent += fullContent;
+                stream.write(`[CONTENT]${content}`);
+            }
+        }
 
         await chatDB.saveMessage(uuid, uid, model, "user", content);
-        await chatDB.saveMessage(uuid, uid, model, "reasoning", fullReasoningContent);
+        if (isRea) {
+            await chatDB.saveMessage(uuid, uid, model, "reasoning", fullReasoningContent);
+        }
         await chatDB.saveMessage(uuid, uid, model, "assistant", fullContent);
 
         fullContent = "";
