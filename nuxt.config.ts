@@ -68,6 +68,7 @@ export default defineNuxtConfig({
 
         public: {
             tokenKeyClient: process.env.TOEKNKEY_CLIENT,
+            cloudflareKey: process.env.CLOUDFLARE_KEY,
         },
     },
 });

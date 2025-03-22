@@ -38,6 +38,7 @@
                     <span v-else> ok </span>
                 </button>
             </div>
+            <div class="cf-turnstile" :data-sitekey="config.public.cloudflareKey"></div>
             <div role="alert" class="alert" :class="alerts" v-if="isAlert">
                 <span>{{ message }}</span>
             </div>
@@ -46,7 +47,7 @@
 </template>
 
 <script setup>
-import b64_hmac_sha256 from '~/utils/sha256.js';
+import b64_hmac_sha256 from "~/utils/sha256.js";
 
 const config = useRuntimeConfig();
 const { t, locale, setLocale } = useI18n();
@@ -130,6 +131,16 @@ const handleSubmit = async () => {
         isLoading.value = false;
     }
 };
+
+useHead({
+    script: [
+        {
+            src: "https://challenges.cloudflare.com/turnstile/v0/api.js",
+            async: true,
+            defer: true,
+        },
+    ],
+});
 </script>
 
 <style lang="scss" scoped>
